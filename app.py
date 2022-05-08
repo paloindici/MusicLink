@@ -1,10 +1,11 @@
 import os
 
 import discogs_client
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash
 from pyarr import LidarrAPI
 
 app = Flask(__name__)
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 app.config.from_pyfile('config.py')
 
 LIDARR_URL = os.getenv("LIDARR_URL")
@@ -33,10 +34,8 @@ def recherche_tekno():
 @app.route('/resultcommercial', methods=['GET'])
 def resultat_commercial():
     result = request.args
-    n = result['nom']
-    resultSearch = lidarr.lookup_artist(n)
-    print(resultSearch[0])
-    return render_template("resultat_commercial.html", artist=resultSearch[0])
+    resultSearch = lidarr.lookup_artist(result['nom'])
+    return render_template("recherche_commercial.html", artistsData=resultSearch)
 
 
 @app.route('/resulttekno', methods=['GET'])

@@ -2,8 +2,50 @@
 
 {% block content %}
 <h1>{% block title %} Recherche d'artiste commercial {% endblock %}</h1>
-<form action="/resultcommercial" method="get">
-    <label>Nom</label> : <input type="text" name="nom" />
-    <input type="submit" value="Rechercher" />
+
+{% for message in get_flashed_messages() %}
+<div class="alert alert-danger" id="myCollapse">
+    {{ message }}
+</div>
+{% endfor %}
+
+<form action="/resultcommercial" method="get" class="row">
+    <label for="search-comm" class="col-1 col-form-label">Nom :</label>
+    <div class="col-3">
+        <input type="text" class="form-control col-3" id="search-comm" name="nom" required>
+    </div>
+    <div class="col-3">
+        <button type="submit" class="btn btn-primary">
+            Rechercher
+        </button>
+    </div>
 </form>
+
+<div class="row my-5 text-center">
+    {% for artistData in artistsData %}
+    <div class="card mb-3 offset-1 col-3" style="width: 18rem">
+        {% if not artistData['images'] %}
+        <p>
+            <img src="..." class="card-img-top" alt="no image">
+        </p>
+        {% else %}
+        <img src="{{artistData['images'][0]['url']}}" class="card-img-top" alt="Image de l'artiste">
+        {% endif %}
+        <div class="card-body">
+            <h5 class="card-title">{{artistData['artistName']}}</h5>
+            <p>Genre: {{artistData['genres'][0]}}</p>
+            <p>Histoire: {{artistData['overview']}}</p>
+
+            {% if not artistData['path'] %}
+            <form action="/confirmedcommercial" method="post">
+                <input type="hidden" id="artistName" name="artistName" value={{artistData['artistName']}}>
+                <input type="submit" value="Ajouter l'artiste">
+            </form>
+            {% else %}
+            <p>{{artistData['artistName']}} fait déjà partie de la bibliothèque Plex</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}
