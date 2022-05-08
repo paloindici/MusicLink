@@ -2,3 +2,4 @@
 .dockerignore
 .DockerMakeLatest.bat
 Dockerfile
+venv
