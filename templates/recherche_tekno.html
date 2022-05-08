@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Recherche d'artiste tekno {% endblock %}</h1>
+<form action="/resulttekno" method="get">
+    <label>Nom</label> : <input type="text" name="nom" />
+    <input type="submit" value="Rechercher" />
+</form>
+{% endblock %}

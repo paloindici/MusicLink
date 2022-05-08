@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Recherche d'artiste commercial {% endblock %}</h1>
+<form action="/resultcommercial" method="get">
+    <label>Nom</label> : <input type="text" name="nom" />
+    <input type="submit" value="Rechercher" />
+</form>
+{% endblock %}

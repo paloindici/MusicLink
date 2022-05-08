@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Résultat de la recherche {% endblock %}</h1>
+<p>Nom: {{artist['artistName']}}</p>
+<p>Genre: {{artist['genres'][0]}}</p>
+<p>Histoire: {{artist['overview']}}</p>
+<img class="fit-picture"
+     src={{artist['images'][0]['url']}}
+     alt="Image de l'artiste"
+     width="500">
+{% if not artist['path'] %}
+<form action="/confirmedcommercial" method="post">
+    <input type="hidden" id="artistName" name="artistName" value={{artist['artistName']}}>
+    <input type="submit" value="Ajouter l'artiste">
+</form>
+{% else %}
+<p>{{artist['artistName']}} fait déjà partie de la bibliothèque Plex</p>
+{% endif %}
+{% endblock %}
