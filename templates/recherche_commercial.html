@@ -3,12 +3,6 @@
 {% block content %}
 <h1>{% block title %} Recherche d'artiste commercial {% endblock %}</h1>
 
-{% for message in get_flashed_messages() %}
-<div class="alert alert-danger" id="myCollapse">
-    {{ message }}
-</div>
-{% endfor %}
-
 <form action="/resultcommercial" method="get" class="row">
     <label for="search-comm" class="col-1 col-form-label">Nom :</label>
     <div class="col-3">
