@@ -1,8 +1,12 @@
 import os
+import sqlite3
+import time
 
 import discogs_client
 from flask import Flask, render_template, request, flash
 from pyarr import LidarrAPI
+
+from db.init_db import create_db
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -14,6 +18,8 @@ DISCOGS_TOKEN = os.getenv('DISCOGS_TOKEN')
 
 discogs = discogs_client.Client('Musicconnect/1.0', user_token=DISCOGS_TOKEN)
 lidarr = LidarrAPI(LIDARR_URL, LIDARR_API)
+
+create_db()
 
 
 @app.route('/')
@@ -68,9 +74,19 @@ def confirm_commercial():
 @app.route('/confirmedtekno', methods=['POST'])
 def confirm_tekno():
     result = request.form
-    n = result['artistName']
-    # Action ici
+    conn = get_db_connection()
+    sql = ''' INSERT INTO tekno(artistId, artistName, ressourceUrl, lastView) VALUES(?,?,?,?) '''
+    data = (result['artistId'], result['artistName'], result['ressourceUrl'], time.time())
+    conn.execute(sql, data)
+    conn.commit()
+    conn.close()
     return render_template('confirmation_tekno.html', artist=result)
+
+
+def get_db_connection():
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
 if __name__ == "__main__":
