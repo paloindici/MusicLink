@@ -14,30 +14,51 @@
         </button>
     </div>
 </form>
-
-<div class="row my-5 text-center">
+<div class="row my-5 row-cols-1 row-cols-md-3 g-4">
     {% for artistData in artistsData %}
-    <div class="card mb-3 offset-1 col-3" style="width: 18rem">
-        {% if not artistData['images'] %}
-        <p>
-            No image available
-        </p>
-        {% else %}
-        <img src="{{artistData['images'][0]['url']}}" class="card-img-top" alt="Image de l'artiste">
-        {% endif %}
-        <div class="card-body">
-            <h5 class="card-title">{{artistData['artistName']}}</h5>
-            <p>Genre: {{artistData['genres'][0]}}</p>
-            <p>Histoire: {{artistData['overview']}}</p>
-
-            {% if not artistData['path'] %}
-            <form action="/confirmedcommercial" method="post">
-                <input type="hidden" id="artistName" name="artistName" value={{artistData['artistName']}}>
-                <input type="submit" value="Ajouter l'artiste">
-            </form>
+    <div class="col">
+        <div class="card h-100">
+            {% if not artistData['images'] %}
+            <p class="text-center text-danger">
+                No image available
+            </p>
             {% else %}
-            <p>{{artistData['artistName']}} fait déjà partie de la bibliothèque Plex</p>
+            <img src="{{artistData['images'][0]['url']}}" class="card-img-top" alt="Image de l'artiste">
             {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{artistData['artistName']}}</h5>
+                {% if not artistData['genres'] %}
+                <span class="badge rounded-pill bg-danger my-4">Pas de genres défini</span>
+                {% else %}
+                {% for style in artistData['genres'] %}
+                <span class="badge rounded-pill bg-secondary my-4">{{style}}</span>
+                {% endfor %}
+                {% endif %}
+
+
+                <div class="line-clamp">
+                    {% if not artistData['overview'] %}
+                    <span class="badge rounded-pill bg-danger my-4">Pas d'histoire défini</span>
+                    {% else %}
+                    {% for style in artistData['genres'] %}
+                    {{artistData['overview']}}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-dark">
+                {% if not artistData['path'] %}
+                <form action="/confirmedcommercial" method="post">
+                    <input type="hidden" id="artistName" name="artistName" value={{artistData['artistName']}}>
+                    <button type="submit" class="btn btn-primary">Ajouter l'artiste</button>
+                </form>
+                {% else %}
+                <div class="text-center">
+                    <span class="badge rounded-pill bg-success">{{artistData['artistName']}} fait déjà partie de la bibliothèque Plex</span>
+                </div>
+                {% endif %}
+            </div>
+
         </div>
     </div>
     {% endfor %}

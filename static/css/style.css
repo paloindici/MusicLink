@@ -4,3 +4,10 @@ h1 {
     text-align: center;
     padding: 10px;
 }
+
+.line-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
