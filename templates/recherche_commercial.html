@@ -3,7 +3,7 @@
 {% block content %}
 <h1>{% block title %} Recherche d'artiste commercial {% endblock %}</h1>
 
-<form action="/resultcommercial" method="get" class="row">
+<form action="{{url_for('.resultat_commercial')}}" method="get" class="row">
     <label for="search-comm" class="col-1 col-form-label">Nom :</label>
     <div class="col-3">
         <input type="text" class="form-control col-3" id="search-comm" name="nom" required>
@@ -20,7 +20,7 @@
     <div class="card mb-3 offset-1 col-3" style="width: 18rem">
         {% if not artistData['images'] %}
         <p>
-            <img src="..." class="card-img-top" alt="no image">
+            No image available
         </p>
         {% else %}
         <img src="{{artistData['images'][0]['url']}}" class="card-img-top" alt="Image de l'artiste">

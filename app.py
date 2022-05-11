@@ -27,7 +27,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/searchcommercial')
+@app.route('/search/commercial')
 def recherche_commercial():
     return render_template('recherche_commercial.html')
 
@@ -37,7 +37,7 @@ def recherche_tekno():
     return render_template('recherche_tekno.html')
 
 
-@app.route('/resultcommercial', methods=['GET'])
+@app.route('/result/commercial', methods=['GET'])
 def resultat_commercial():
     result = request.args
     resultSearch = lidarr.lookup_artist(result['nom'])
