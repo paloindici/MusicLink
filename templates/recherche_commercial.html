@@ -35,16 +35,15 @@
                 {% endfor %}
                 {% endif %}
 
-
-                <div class="line-clamp">
                     {% if not artistData['overview'] %}
                     <span class="badge rounded-pill bg-danger my-4">Pas d'histoire défini</span>
                     {% else %}
-                    {% for style in artistData['genres'] %}
-                    {{artistData['overview']}}
-                    {% endfor %}
+                    <p class="line-clamp">{{artistData['overview']}}</p>
+                    <div class="w-100 text-end">
+                        <!--TODO add function to display all text-->
+                        <button class="btn btn-link">en savoir plus</button>
+                    </div>
                     {% endif %}
-                </div>
             </div>
             <div class="card-footer bg-transparent border-dark">
                 {% if not artistData['path'] %}
