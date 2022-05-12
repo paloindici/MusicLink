@@ -31,19 +31,20 @@
                 <span class="badge rounded-pill bg-danger my-4">Pas de genres défini</span>
                 {% else %}
                 {% for style in artistData['genres'] %}
-                <span class="badge rounded-pill bg-secondary my-4">{{style}}</span>
+                <span class="badge rounded-pill bg-secondary">{{style}}</span>
                 {% endfor %}
                 {% endif %}
 
-                    {% if not artistData['overview'] %}
-                    <span class="badge rounded-pill bg-danger my-4">Pas d'histoire défini</span>
-                    {% else %}
-                    <p class="line-clamp">{{artistData['overview']}}</p>
-                    <div class="w-100 text-end">
-                        <!--TODO add function to display all text-->
-                        <button class="btn btn-link">en savoir plus</button>
-                    </div>
-                    {% endif %}
+                {% if not artistData['overview'] %}
+                <span class="badge rounded-pill bg-danger my-4">Pas d'histoire défini</span>
+                {% else %}
+                <p id="overview-{{loop.index}}" class="line-clamp mt-5">{{artistData['overview']}}</p>
+                <div class="w-100 text-end">
+                    <button id="full-history-{{loop.index}}" class="btn btn-link" onclick="getHistory({{loop.index}})">
+                        en savoir plus
+                    </button>
+                </div>
+                {% endif %}
             </div>
             <div class="card-footer bg-transparent border-dark">
                 {% if not artistData['path'] %}
@@ -62,4 +63,21 @@
     </div>
     {% endfor %}
 </div>
+
+<!--TODO create service -->
+<script>
+function getHistory(index) {
+    var classList = $(`#overview-${index}`).attr("class").split(/\s+/);
+    console.log(classList);
+    console.log($.inArray("line-clamp", classList));
+    if($.inArray("line-clamp", classList) != -1) {
+        $(`#overview-${index}`).removeClass('line-clamp');
+        $(`#full-history-${index}`).html("afficher moins");
+    } else {
+        $(`#overview-${index}`).addClass('line-clamp');
+        $(`#full-history-${index}`).html("en savoir plus");
+    }
+}
+
+</script>
 {% endblock %}
