@@ -3,40 +3,51 @@ import sqlite3
 import time
 
 import discogs_client
-from flask import Flask, render_template, request, flash
+from celery import Celery
+from flask import Flask, render_template, request
 from pyarr import LidarrAPI
 
 from db.init_db import create_db
 
+# Config de Flask + Celery
 app = Flask(__name__)
+app.config.from_pyfile('config.py')
+app.config['CELERY_BROKER_URL'] = os.getenv("CELERY_BROKER_URL")
+app.config['CELERY_RESULT_BACKEND'] = os.getenv("CELERY_RESULT_BACKEND")
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 app.config.from_pyfile('config.py')
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 
+# Config des API - services externes
 LIDARR_URL = os.getenv("LIDARR_URL")
 LIDARR_API = os.getenv("LIDARR_API")
 DISCOGS_TOKEN = os.getenv('DISCOGS_TOKEN')
-
 discogs = discogs_client.Client('Musicconnect/1.0', user_token=DISCOGS_TOKEN)
 lidarr = LidarrAPI(LIDARR_URL, LIDARR_API)
 
+# Création de la DB au démarrage si inexistante
 create_db()
 
 
+# Page d'accueil de MusicLink
 @app.route('/')
 def index():
     return render_template('index.html')
 
 
+# Page de recherche des musiques commercial
 @app.route('/search/commercial')
 def recherche_commercial():
     return render_template('recherche_commercial.html')
 
 
+# Page de recherche des musiques tekno
 @app.route('/searchtekno')
 def recherche_tekno():
     return render_template('recherche_tekno.html')
 
 
+# Page des résultats de recherche des musiques commercial
 @app.route('/result/commercial', methods=['GET'])
 def resultat_commercial():
     result = request.args
@@ -44,6 +55,7 @@ def resultat_commercial():
     return render_template("recherche_commercial.html", artistsData=resultSearch)
 
 
+# Page des résultats de recherche des musiques tekno
 @app.route('/resulttekno', methods=['GET'])
 def resultat_tekno():
     result = request.args
@@ -54,6 +66,7 @@ def resultat_tekno():
     return render_template("resultat_tekno.html", artist=resultsSearch)
 
 
+# Page de confirmation de l'ajout d'un artiste commercial
 @app.route('/confirmedcommercial', methods=['POST'])
 def confirm_commercial():
     result = request.form
@@ -71,22 +84,31 @@ def confirm_commercial():
     pass
 
 
+# Page de confirmation de l'ajout d'un artiste tekno
 @app.route('/confirmedtekno', methods=['POST'])
 def confirm_tekno():
     result = request.form
-    conn = get_db_connection()
-    sql = ''' INSERT INTO tekno(artistId, artistName, ressourceUrl, lastView) VALUES(?,?,?,?) '''
-    data = (result['artistId'], result['artistName'], result['ressourceUrl'], time.time())
-    conn.execute(sql, data)
-    conn.commit()
-    conn.close()
+    save_to_db_tekno.delay(result['artistId'], result['artistName'], result['ressourceUrl'])
     return render_template('confirmation_tekno.html', artist=result)
 
 
+# Fonction de connection a la base de donnée
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
+
+
+# Tache d'arrière plan pour l'ajout d'un artiste tekno a la base de donnée
+@celery.task
+def save_to_db_tekno(artistId, artistName, ressourceUrl):
+    print("task OK")
+    conn = get_db_connection()
+    sql = ''' INSERT INTO tekno(artistId, artistName, ressourceUrl, lastView) VALUES(?,?,?,?) '''
+    data = (artistId, artistName, ressourceUrl, time.time())
+    conn.execute(sql, data)
+    conn.commit()
+    conn.close()
 
 
 if __name__ == "__main__":
