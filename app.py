@@ -3,6 +3,7 @@ import sqlite3
 import time
 
 import discogs_client
+import downloader
 from celery import Celery
 from flask import Flask, render_template, request
 from pyarr import LidarrAPI
@@ -88,7 +89,15 @@ def confirm_commercial():
 @app.route('/confirmedtekno', methods=['POST'])
 def confirm_tekno():
     result = request.form
-    save_to_db_tekno.delay(result['artistId'], result['artistName'], result['ressourceUrl'])
+    conn = get_db_connection()
+    sql = ''' INSERT INTO tekno(artistId, artistName, ressourceUrl, lastView) VALUES(?,?,?,?) '''
+    data = (result['artistId'], result['artistName'], result['ressourceUrl'], time.time())
+    conn.execute(sql, data)
+    conn.commit()
+    conn.close()
+
+    analyseTekno.delay(result['artistId'])
+
     return render_template('confirmation_tekno.html', artist=result)
 
 
@@ -99,16 +108,10 @@ def get_db_connection():
     return conn
 
 
-# Tache d'arrière plan pour l'ajout d'un artiste tekno a la base de donnée
 @celery.task
-def save_to_db_tekno(artistId, artistName, ressourceUrl):
-    print("task OK")
-    conn = get_db_connection()
-    sql = ''' INSERT INTO tekno(artistId, artistName, ressourceUrl, lastView) VALUES(?,?,?,?) '''
-    data = (artistId, artistName, ressourceUrl, time.time())
-    conn.execute(sql, data)
-    conn.commit()
-    conn.close()
+def analyseTekno(artistId):
+    print("Analyse et téléchargements")
+    downloader.get_tracks(artistId)
 
 
 if __name__ == "__main__":
