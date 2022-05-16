@@ -24,6 +24,8 @@ celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 LIDARR_URL = os.getenv("LIDARR_URL")
 LIDARR_API = os.getenv("LIDARR_API")
 DISCOGS_TOKEN = os.getenv('DISCOGS_TOKEN')
+PLEX_TOKEN = os.getenv('PLEX_TOKEN')
+BASE_URL_PLEX = os.getenv('BASE_URL_PLEX')
 discogs = discogs_client.Client('Musicconnect/1.0', user_token=DISCOGS_TOKEN)
 lidarr = LidarrAPI(LIDARR_URL, LIDARR_API)
 
