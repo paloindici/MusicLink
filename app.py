@@ -72,7 +72,7 @@ async def plex_oauth():
 @app.route('/search/commercial')
 def recherche_commercial():
     if 'token' in session:
-        return render_template('recherche_commercial.html')
+        return render_template('recherche_commercial.html', info="Pas d'artist rechercher")
     else:
         return redirect(url_for('signin'))
 
