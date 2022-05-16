@@ -6,6 +6,7 @@ import downloader
 from celery import Celery
 from flask import Flask, render_template, request, session, redirect, url_for
 from pyarr import LidarrAPI
+from plexapi.server import PlexServer
 
 from db.init_db import create_db
 
@@ -28,6 +29,7 @@ PLEX_TOKEN = os.getenv('PLEX_TOKEN')
 BASE_URL_PLEX = os.getenv('BASE_URL_PLEX')
 discogs = discogs_client.Client('Musicconnect/1.0', user_token=DISCOGS_TOKEN)
 lidarr = LidarrAPI(LIDARR_URL, LIDARR_API)
+plex = PlexServer(BASE_URL_PLEX, PLEX_TOKEN)
 
 # Création de la DB au démarrage si inexistante
 create_db()
