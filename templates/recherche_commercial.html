@@ -48,7 +48,7 @@
             </div>
             <div class="card-footer bg-transparent border-dark">
                 {% if not artistData['path'] %}
-                <form action="/confirmedcommercial" method="post">
+                <form action="/confirmed/commercial" method="post">
                     <input type="hidden" id="artistName" name="artistName" value={{artistData['artistName']}}>
                     <button type="submit" class="btn btn-primary">Ajouter l'artiste</button>
                 </form>

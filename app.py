@@ -74,7 +74,7 @@ def recherche_commercial():
 
 
 # Page de recherche des musiques tekno
-@app.route('/searchtekno')
+@app.route('/search/tekno')
 def recherche_tekno():
     return render_template('recherche_tekno.html')
 
@@ -88,7 +88,7 @@ def resultat_commercial():
 
 
 # Page des résultats de recherche des musiques tekno
-@app.route('/resulttekno', methods=['GET'])
+@app.route('/result/tekno', methods=['GET'])
 def resultat_tekno():
     result = request.args
     n = result['nom']
@@ -99,7 +99,7 @@ def resultat_tekno():
 
 
 # Page de confirmation de l'ajout d'un artiste commercial
-@app.route('/confirmedcommercial', methods=['POST'])
+@app.route('/confirmed/commercial', methods=['POST'])
 def confirm_commercial():
     result = request.form
     n = result['artistName']
@@ -117,7 +117,7 @@ def confirm_commercial():
 
 
 # Page de confirmation de l'ajout d'un artiste tekno
-@app.route('/confirmedtekno', methods=['POST'])
+@app.route('/confirmed/tekno', methods=['POST'])
 def confirm_tekno():
     result = request.form
     conn = get_db_connection()
