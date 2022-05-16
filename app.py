@@ -1,14 +1,15 @@
 import os
 import sqlite3
 import time
-
 import discogs_client
 import downloader
 from celery import Celery
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, redirect, url_for
 from pyarr import LidarrAPI
 
 from db.init_db import create_db
+
+from plexOauth import oauth
 
 # Config de Flask + Celery
 app = Flask(__name__)
@@ -33,13 +34,43 @@ create_db()
 # Page d'accueil de MusicLink
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if 'token' in session:
+        return render_template('index.html')
+    else:
+        return redirect(url_for('signin'))
+
+
+@app.route('/signin')
+def signin():
+    if 'token' in session:
+        return redirect(url_for('index'))
+    return render_template('no_auth.html')
+
+
+@app.route('/signout')
+def signout():
+    session.clear()
+    return redirect(url_for('signin'))
+
+
+@app.route('/plex/oauth', methods=['POST'])
+async def plex_oauth():
+    token = await oauth()
+    session['token'] = token
+
+    if token:
+        return redirect(url_for('index'))
+
+    return redirect(url_for('signin'))
 
 
 # Page de recherche des musiques commercial
 @app.route('/search/commercial')
 def recherche_commercial():
-    return render_template('recherche_commercial.html')
+    if 'token' in session:
+        return render_template('recherche_commercial.html')
+    else:
+        return redirect(url_for('signin'))
 
 
 # Page de recherche des musiques tekno

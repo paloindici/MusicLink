@@ -1,4 +1,3 @@
-import asyncio
 import webbrowser
 
 from plexauth import PlexAuth
@@ -19,14 +18,5 @@ async def oauth():
     async with PlexAuth(PAYLOAD) as plexauth:
         await plexauth.initiate_auth()
         webbrowser.open_new_tab(plexauth.auth_url())
-        #print("Complete auth at URL: {}".format(plexauth.auth_url()))
         token = await plexauth.token()
-
-    if token:
-        print("Token: {}".format(token))
-    else:
-        print("No token returned.")
-
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(oauth())
+        return token

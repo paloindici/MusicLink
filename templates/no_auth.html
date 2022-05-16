@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div class="bg-light text-light" style="height: 100vh">
+    {{token}}
+    <div class="d-flex flex-column justify-content-center align-items-center" style="height: 100vh">
+        <div class="custom-box w-25 text-center flip-card">
+            You are not connected ! <br>
+            You must be connect Plex to continue... <br>
+
+            Please connect with button plex <br><br>
+        </div>
+
+        <button id="login-plex" class="neumo-button mt-5">
+            <img id="plex-logo" src="../static/images/plex-logo.svg" class="w-25">
+            <div id="spin" class="spinner-border visually-hidden mt-1" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </button>
+    </div>
+</div>
+
+<script>
+    $('#login-plex').on('click', (e) => {
+
+        $('#spin').removeClass('visually-hidden');
+
+        $.ajax({
+          url: "/plex/oauth",
+          type: "POST"
+        }).done(function() {
+            alert( "success" );
+          })
+          .fail(function() {
+            alert( "error" );
+          })
+          .always(function() {
+            window.location.href = "/";
+          });
+    });
+</script>
+
+{% endblock %}

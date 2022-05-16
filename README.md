@@ -1,6 +1,12 @@
 # MusicLink
 Link for Plex, Lidarr, Discogs, Youtube
 
+
+### **Rebuild Requirement:**
+`pip freeze > requirements.txt`
+
+### **Install Requirement:**
+`pip install -r requirements.txt`
 ### **Celery:**
 
 To launch celery during development on Windows, use the following command:
