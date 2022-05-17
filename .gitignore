@@ -5,6 +5,8 @@ Dockerfile
 .db
 venv
 database.db
+favicon.png
+favicon.psd
 
 #ide
 .idea
