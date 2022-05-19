@@ -7,10 +7,9 @@ from celery import Celery
 from flask import Flask, render_template, request, session, redirect, url_for
 from pyarr import LidarrAPI
 from plexapi.server import PlexServer
+from plexapi.myplex import MyPlexAccount
 
 from db.init_db import create_db
-
-from plexOauth import oauth
 
 # Config de Flask + Celery
 app = Flask(__name__)
@@ -48,7 +47,7 @@ def index():
 def signin():
     if 'token' in session:
         return redirect(url_for('index'))
-    return render_template('no_auth.html')
+    return render_template('login.html')
 
 
 @app.route('/signout')
@@ -57,15 +56,20 @@ def signout():
     return redirect(url_for('signin'))
 
 
-@app.route('/plex/oauth', methods=['POST'])
+@app.route('/plex/sign-in', methods=['POST'])
 async def plex_oauth():
-    token = await oauth()
-    session['token'] = token
+    # request.values['email'], request.values['password']
+    usermail = request.values['email']
+    userpass = request.values['password']
 
-    if token:
-        return redirect(url_for('index'))
-
-    return redirect(url_for('signin'))
+    user = MyPlexAccount(usermail, userpass).authenticationToken
+    # token = await oauth()
+    # session['token'] = token
+    #
+    # if token:
+    #     return redirect(url_for('index'))
+    #
+    # return redirect(url_for('signin'))
 
 
 # Page de recherche des musiques commercial
@@ -150,4 +154,4 @@ def analyseTekno(artistId):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0')
