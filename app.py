@@ -9,7 +9,7 @@ from pyarr import LidarrAPI
 from plexapi.server import PlexServer
 from plexapi.myplex import MyPlexAccount
 
-from db.init_db import create_db
+from db import init_db
 
 # Config de Flask + Celery
 app = Flask(__name__)
@@ -31,7 +31,7 @@ lidarr = LidarrAPI(LIDARR_URL, LIDARR_API)
 plex = PlexServer(BASE_URL_PLEX, PLEX_TOKEN)
 
 # Création de la DB au démarrage si inexistante
-create_db()
+location_db = init_db.gestion_fichier_database()
 
 
 # Page d'accueil de MusicLink
@@ -142,7 +142,7 @@ def confirm_tekno():
 
 # Fonction de connection a la base de donnée
 def get_db_connection():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(location_db)
     conn.row_factory = sqlite3.Row
     return conn
 
