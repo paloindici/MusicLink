@@ -2,8 +2,6 @@ import os
 import sqlite3
 import time
 import discogs_client
-import downloader
-from celery import Celery
 from flask import Flask, render_template, request, session, redirect, url_for
 from pyarr import LidarrAPI
 from plexapi.server import PlexServer
@@ -11,14 +9,10 @@ from plexapi.myplex import MyPlexAccount
 
 from db import init_db
 
-# Config de Flask + Celery
+# Config de Flask
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
-app.config['CELERY_BROKER_URL'] = os.getenv("CELERY_BROKER_URL")
-app.config['CELERY_RESULT_BACKEND'] = os.getenv("CELERY_RESULT_BACKEND")
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
-app.config.from_pyfile('config.py')
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 
 # Config des API - services externes
 LIDARR_URL = os.getenv("LIDARR_URL")
@@ -135,7 +129,7 @@ def confirm_tekno():
     conn.commit()
     conn.close()
 
-    analyseTekno.delay(result['artistId'])
+    # Ajout d'une "tache" prioritaire ?
 
     return render_template('confirmation_tekno.html', artist=result)
 
@@ -145,12 +139,6 @@ def get_db_connection():
     conn = sqlite3.connect(location_db)
     conn.row_factory = sqlite3.Row
     return conn
-
-
-@celery.task
-def analyseTekno(artistId):
-    print("Analyse et téléchargements")
-    downloader.get_tracks(artistId)
 
 
 if __name__ == "__main__":
