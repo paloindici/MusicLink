@@ -2,12 +2,10 @@ import os
 import sqlite3
 import time
 import discogs_client
-import downloader
-from celery import Celery
 from flask import Flask, render_template, request, session, redirect, url_for
 from pyarr import LidarrAPI
 from plexapi.server import PlexServer
-from plexapi.myplex import MyPlexAccount, MyPlexUser
+from plexapi.myplex import MyPlexAccount
 
 from db import init_db
 
@@ -47,9 +45,10 @@ def signin():
         userEmail = request.form['email']
         userPass = request.form['pass']
         usersAuthorized = plex.myPlexAccount().users()
+        userAdmin = plex.myPlexAccount()
         usersAuthorizedFiltered = [user for user in usersAuthorized if user.email == userEmail]
 
-        if not usersAuthorizedFiltered:
+        if not usersAuthorizedFiltered and userEmail != userAdmin.email:
             error = "Cette utilisateur ne dispose pas des droit suffisant pour accéder à ce service"
             return render_template('login.html', error=error)
 
