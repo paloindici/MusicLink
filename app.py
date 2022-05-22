@@ -49,10 +49,16 @@ def signin():
         usersAuthorizedFiltered = [user for user in usersAuthorized if user.email == userEmail]
 
         if not usersAuthorizedFiltered and userEmail != userAdmin.email:
-            error = "Cette utilisateur ne dispose pas des droit suffisant pour accéder à ce service"
+            error = "adresse email ou mot de passe incorect"
             return render_template('login.html', error=error)
 
-        userToken = MyPlexAccount(userEmail, userPass).authenticationToken
+        try:
+            userToken = MyPlexAccount(userEmail, userPass).authenticationToken
+        except Exception as err:
+            #TODO var err in log
+            error = "adresse email ou mot de passe incorect"
+            return render_template('login.html', error=error)
+
         session['token'] = userToken
         return redirect(url_for('index'))
 

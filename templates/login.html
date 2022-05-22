@@ -11,7 +11,7 @@
 {% block content %}
 <div class="bg-dark text-light" style="height: 100vh">
     <div class="d-flex flex-column justify-content-center align-items-center" style="height: 100vh">
-        <h2 class="d-flex text-dark mb-5">
+        <h2 class="d-flex text-light mb-5">
             S'identifier
         </h2>
         <form method="post" action="{{url_for('.signin')}}">
@@ -25,9 +25,7 @@
                        placeholder="Enter plex password" name="pass">
             </div>
             {% if error is not none %}
-            <div class="alert alert-danger fade show" role="alert">
-                <strong>{{error}}</strong>
-            </div>
+            <small class="text-danger">{{error}}.</small>
             {% endif %}
 
             <div class="text-center">
