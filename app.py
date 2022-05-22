@@ -2,10 +2,12 @@ import os
 import sqlite3
 import time
 import discogs_client
+import downloader
+from celery import Celery
 from flask import Flask, render_template, request, session, redirect, url_for
 from pyarr import LidarrAPI
 from plexapi.server import PlexServer
-from plexapi.myplex import MyPlexAccount
+from plexapi.myplex import MyPlexAccount, MyPlexUser
 
 from db import init_db
 
@@ -32,38 +34,36 @@ location_db = init_db.gestion_fichier_database()
 @app.route('/')
 def index():
     if 'token' in session:
-        return render_template('index.html')
+        user = MyPlexAccount(token=session['token']).username
+        return render_template('index.html', username=user)
     else:
         return redirect(url_for('signin'))
 
 
-@app.route('/signin')
+@app.route('/signin', methods=['GET', 'POST'])
 def signin():
-    if 'token' in session:
+    error = None
+    if request.method == 'POST':
+        userEmail = request.form['email']
+        userPass = request.form['pass']
+        usersAuthorized = plex.myPlexAccount().users()
+        usersAuthorizedFiltered = [user for user in usersAuthorized if user.email == userEmail]
+
+        if not usersAuthorizedFiltered:
+            error = "Cette utilisateur ne dispose pas des droit suffisant pour accéder à ce service"
+            return render_template('login.html', error=error)
+
+        userToken = MyPlexAccount(userEmail, userPass).authenticationToken
+        session['token'] = userToken
         return redirect(url_for('index'))
-    return render_template('login.html')
+
+    return render_template('login.html', error=error)
 
 
 @app.route('/signout')
 def signout():
     session.clear()
     return redirect(url_for('signin'))
-
-
-@app.route('/plex/sign-in', methods=['POST'])
-async def plex_oauth():
-    # request.values['email'], request.values['password']
-    usermail = request.values['email']
-    userpass = request.values['password']
-
-    user = MyPlexAccount(usermail, userpass).authenticationToken
-    # token = await oauth()
-    # session['token'] = token
-    #
-    # if token:
-    #     return redirect(url_for('index'))
-    #
-    # return redirect(url_for('signin'))
 
 
 # Page de recherche des musiques commercial
