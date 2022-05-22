@@ -1,6 +1,7 @@
 .env
 .dockerignore
 .DockerMakeLatest.bat
+.DockerMakeDev.bat
 Dockerfile
 .db
 venv
