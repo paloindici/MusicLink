@@ -1,49 +1,41 @@
 {% extends 'base.html' %}
 
-{% block navbar %}{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">MusicLink</a>
+    </div>
+</nav>
+{% endblock %}
 
 {% block content %}
-<div class="bg-light text-light" style="height: 100vh">
-    {{token}}
+<div class="bg-dark text-light" style="height: 100vh">
     <div class="d-flex flex-column justify-content-center align-items-center" style="height: 100vh">
-        <form>
-            <div class="mb-3">
-                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter plex email">
+        <h2 class="d-flex text-dark mb-5">
+            S'identifier
+        </h2>
+        <form method="post" action="{{url_for('.signin')}}">
+        <div class="mb-3">
+        <input type="email" class="form-control" id="email" aria-describedby="emailHelp"
+                       placeholder="Enter plex email" name="email" required>
+                <div id="log" class="text-danger"></div>
             </div>
             <div class="mb-3">
-                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Enter plex password">
+                <input type="password" class="form-control" id="pass"
+                       placeholder="Enter plex password" name="pass">
             </div>
-            <button type="submit" id="login-plex" class="neumo-button mt-5">
-                <img id="plex-logo" src="../static/images/plex-logo.svg" class="w-25">
-                <div id="spin" class="spinner-border visually-hidden mt-1" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </button>
+            {% if error is not none %}
+            <div class="alert alert-danger fade show" role="alert">
+                <strong>{{error}}</strong>
+            </div>
+            {% endif %}
+
+            <div class="text-center">
+                <button type="submit" id="login-plex" class="neumo-button mt-5 bg-dark">
+                    <img id="plex-logo" src="../static/images/plex-logo.svg" class="w-25 py-2">
+                </button>
+            </div>
         </form>
     </div>
 </div>
-
-<script>
-    $('#login-plex').on('click', (e) => {
-
-        $('#spin').removeClass('visually-hidden');
-
-        $.ajax({
-          url: "/plex/sign-in",
-          type: "POST",
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        }).done(function() {
-            alert( "success" );
-          })
-          .fail(function() {
-            alert( "error" );
-          })
-          .always(function() {
-            window.location.href = "/";
-          });
-    });
-
-
-</script>
-
 {% endblock %}
