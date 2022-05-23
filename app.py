@@ -55,7 +55,7 @@ def signin():
         try:
             userToken = MyPlexAccount(userEmail, userPass).authenticationToken
         except Exception as err:
-            #TODO var err in log
+            # TODO var err in log
             error = "adresse email ou mot de passe incorect"
             return render_template('login.html', error=error)
 
@@ -75,7 +75,8 @@ def signout():
 @app.route('/search/commercial')
 def recherche_commercial():
     if 'token' in session:
-        return render_template('recherche_commercial.html', info="Aucun artiste recherché")
+        user = MyPlexAccount(token=session['token']).username
+        return render_template('recherche_commercial.html', info="Aucun artiste recherché", username=user)
     else:
         return redirect(url_for('signin'))
 
@@ -83,60 +84,78 @@ def recherche_commercial():
 # Page de recherche des musiques tekno
 @app.route('/search/tekno')
 def recherche_tekno():
-    return render_template('recherche_tekno.html')
+    if 'token' in session:
+        user = MyPlexAccount(token=session['token']).username
+        return render_template('recherche_tekno.html', info="Aucun artiste recherché", username=user)
+    else:
+        return redirect(url_for('signin'))
 
 
 # Page des résultats de recherche des musiques commercial
 @app.route('/result/commercial', methods=['GET'])
 def resultat_commercial():
-    result = request.args
-    resultSearch = lidarr.lookup_artist(result['nom'])
-    return render_template("recherche_commercial.html", artistsData=resultSearch)
+    if 'token' in session:
+        user = MyPlexAccount(token=session['token']).username
+        result = request.args
+        resultSearch = lidarr.lookup_artist(result['nom'])
+        return render_template("recherche_commercial.html", artistsData=resultSearch, username=user)
+    else:
+        return redirect(url_for('signin'))
 
 
 # Page des résultats de recherche des musiques tekno
 @app.route('/result/tekno', methods=['GET'])
 def resultat_tekno():
-    result = request.args
-    n = result['nom']
-    resultsSearch = discogs.search(n, type='artist')
-    resultsSearch = resultsSearch[0].data
-    print(resultsSearch)
-    return render_template("resultat_tekno.html", artist=resultsSearch)
+    if 'token' in session:
+        user = MyPlexAccount(token=session['token']).username
+        result = request.args
+        n = result['nom']
+        resultsSearch = discogs.search(n, type='artist')
+        resultsSearch = resultsSearch[0].data
+        print(resultsSearch)
+        return render_template("resultat_tekno.html", artist=resultsSearch, username=user)
+    else:
+        return redirect(url_for('signin'))
 
 
 # Page de confirmation de l'ajout d'un artiste commercial
 @app.route('/confirmed/commercial', methods=['POST'])
 def confirm_commercial():
-    result = request.form
-    n = result['artistName']
-    confirm = lidarr.add_artist(search_term=n,
-                                root_dir="/music/Autres/",
-                                quality_profile_id=1,
-                                metadata_profile_id=1,
-                                monitored=False,  # Passer a true en prod
-                                artist_search_for_missing_albums=False)  # Passer a true en prod
-    if "path" in confirm:
-        return render_template('confirmation_commercial.html', artist=confirm)
+    if 'token' in session:
+        result = request.form
+        n = result['artistName']
+        confirm = lidarr.add_artist(search_term=n,
+                                    root_dir="/music/Autres/",
+                                    quality_profile_id=1,
+                                    metadata_profile_id=1,
+                                    monitored=False,  # Passer a true en prod
+                                    artist_search_for_missing_albums=False)  # Passer a true en prod
+        if "path" in confirm:
+            return render_template('confirmation_commercial.html', artist=confirm)
+        else:
+            return render_template('erreur_commercial.html', artist=confirm)
+        pass
     else:
-        return render_template('erreur_commercial.html', artist=confirm)
-    pass
+        return redirect(url_for('signin'))
 
 
 # Page de confirmation de l'ajout d'un artiste tekno
 @app.route('/confirmed/tekno', methods=['POST'])
 def confirm_tekno():
-    result = request.form
-    conn = get_db_connection()
-    sql = ''' INSERT INTO tekno(artistId, artistName, ressourceUrl, lastView) VALUES(?,?,?,?) '''
-    data = (result['artistId'], result['artistName'], result['ressourceUrl'], time.time())
-    conn.execute(sql, data)
-    conn.commit()
-    conn.close()
+    if 'token' in session:
+        result = request.form
+        conn = get_db_connection()
+        sql = ''' INSERT INTO tekno(artistId, artistName, ressourceUrl, lastView) VALUES(?,?,?,?) '''
+        data = (result['artistId'], result['artistName'], result['ressourceUrl'], time.time())
+        conn.execute(sql, data)
+        conn.commit()
+        conn.close()
 
-    # Ajout d'une "tache" prioritaire ?
+        # Ajout d'une "tache" prioritaire ?
 
-    return render_template('confirmation_tekno.html', artist=result)
+        return render_template('confirmation_tekno.html', artist=result)
+    else:
+        return redirect(url_for('signin'))
 
 
 # Fonction de connection a la base de donnée
