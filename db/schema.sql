@@ -1,10 +1,21 @@
-DROP TABLE IF EXISTS tekno;
+DROP TABLE IF EXISTS artistTekno;
+DROP TABLE IF EXISTS dbTekno;
 
-CREATE TABLE "tekno" (
+CREATE TABLE "artistTekno" (
 	"id"	INTEGER,
 	"artistId"	TEXT NOT NULL,
 	"artistName"	TEXT NOT NULL,
 	"ressourceUrl" TEXT NOT NULL,
 	"lastView"	TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+
+CREATE TABLE "dbTekno" (
+	"id"	INTEGER,
+	"artistId"	TEXT NOT NULL,
+	"artistName"	TEXT NOT NULL,
+	"albumId" TEXT NOT NULL,
+	"albumName" TEXT NOT NULL,
+	"songName" TEXT NOT NULL,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );

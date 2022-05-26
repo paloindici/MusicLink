@@ -20,7 +20,7 @@ LIDARR_API = os.getenv("LIDARR_API")
 DISCOGS_TOKEN = os.getenv('DISCOGS_TOKEN')
 PLEX_TOKEN = os.getenv('PLEX_TOKEN')
 BASE_URL_PLEX = os.getenv('BASE_URL_PLEX')
-discogs = discogs_client.Client('Musicconnect/1.0', user_token=DISCOGS_TOKEN)
+discogs = discogs_client.Client('Musicconnect +https://github.com/jordanboucher42/MusicLink', user_token=DISCOGS_TOKEN)
 lidarr = LidarrAPI(LIDARR_URL, LIDARR_API)
 plex = PlexServer(BASE_URL_PLEX, PLEX_TOKEN)
 
@@ -109,11 +109,22 @@ def resultat_tekno():
     if 'token' in session:
         user = MyPlexAccount(token=session['token']).username
         result = request.args
-        n = result['nom']
-        resultsSearch = discogs.search(n, type='artist')
-        resultsSearch = resultsSearch[0].data
-        print(resultsSearch)
-        return render_template("resultat_tekno.html", artist=resultsSearch, username=user)
+        resultsSearch = discogs.search(result['nom'], type='artist')
+
+        selectSearch = resultsSearch[0].data
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM artistTekno WHERE artistId=?", [(str(selectSearch['id']))])
+        rows = cur.fetchall()
+        conn.commit()
+        conn.close()
+        if rows:
+            print("present")
+        else:
+            print("absent")
+
+        return render_template("resultat_tekno.html", artist=selectSearch, username=user)
     else:
         return redirect(url_for('signin'))
 
@@ -145,13 +156,11 @@ def confirm_tekno():
     if 'token' in session:
         result = request.form
         conn = get_db_connection()
-        sql = ''' INSERT INTO tekno(artistId, artistName, ressourceUrl, lastView) VALUES(?,?,?,?) '''
-        data = (result['artistId'], result['artistName'], result['ressourceUrl'], time.time())
+        sql = ''' INSERT INTO artistTekno(artistId, artistName, ressourceUrl, lastView) VALUES(?,?,?,?) '''
+        data = (result['artistId'], result['artistName'], result['ressourceUrl'], 0)
         conn.execute(sql, data)
         conn.commit()
         conn.close()
-
-        # Ajout d'une "tache" prioritaire ?
 
         return render_template('confirmation_tekno.html', artist=result)
     else:
