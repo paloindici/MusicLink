@@ -1,6 +1,5 @@
 import os
 import sqlite3
-import time
 import discogs_client
 from flask import Flask, render_template, request, session, redirect, url_for
 from pyarr import LidarrAPI
