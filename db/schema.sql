@@ -16,6 +16,5 @@ CREATE TABLE "dbTekno" (
 	"artistName"	TEXT NOT NULL,
 	"albumId" TEXT NOT NULL,
 	"albumName" TEXT NOT NULL,
-	"songName" TEXT NOT NULL,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
