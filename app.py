@@ -5,7 +5,6 @@ from plexapi.server import PlexServer
 from plexapi.myplex import MyPlexAccount
 
 import api_discogs
-import scraper_discogs
 import thread_downloader
 from db import init_db
 
@@ -110,17 +109,11 @@ def search_result():
             if not album['master_id'] in list_master_id:
                 list_master_id.append(album['master_id'])
                 final_list.append(album)
-            if len(final_list) == 25:
-                break
         # print(response)
         # print(final_list)
         pagination = response['pagination']
         pagination['items'] = len(final_list)
         # print(pagination)
-
-        for album in final_list:
-            thumb = scraper_discogs.get_thumb(f"https://www.discogs.com/fr{album['uri']}")
-            album['thumb'] = thumb
 
         # Analyse de la DB pour savoir si déjà présent dans les demandes
         # conn = get_db_connection()
@@ -145,9 +138,9 @@ def search_result():
 @app.route('/result/confirmed', methods=['POST'])
 def confirm_add():
     if 'token' in session:
-        result = request.form
+        result = request.form.to_dict()
         print(result)
-        print(result['title'])
+        # print(result['title'])
         # conn = get_db_connection()
         # sql = ''' INSERT INTO artistTekno(artistId, artistName, ressourceUrl, lastView) VALUES(?,?,?,?) '''
         # data = (result['artistId'], result['artistName'], result['ressourceUrl'], 0)
