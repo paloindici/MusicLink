@@ -20,46 +20,50 @@
 
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid">
+    <div class="container-fluid d-flex">
         <a class="navbar-brand" href="{{url_for('.index')}}">Accueil</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
-                aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll"
+                aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse d-flex justify-content-between">
-            <div class="p-2">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://maison-jo.synology.me/index.php/contact/"
-                           target="_blank">Contact</a>
-                    </li>
-                </ul>
-            </div>
-            <form action="{{url_for('.search_result')}}" method="get" class="row">
-                <div class="d-flex justify-content-center">
-                    <input type="text" class="form-control col-2 w-50 me-3" id="search-comm" name="nom" placeholder="Artiste, album, ..." required>
-                    <select class="form-select form-select-sm col-2 w-50 me-3" aria-label=".form-select-sm example" name="format">
+        <div class="collapse navbar-collapse" id="navbarScroll">
+            <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+                <li class="nav-item">
+                    <a class="nav-link" href="https://maison-jo.synology.me/index.php/contact/"
+                       target="_blank">Contact</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Account
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="nav-item ms-3 mt-1">
+                            {{username}}
+                        </li>
+                        <hr>
+                        <li><a class="dropdown-item text-danger" href="{{url_for('.signout')}}">déconnexion</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="col-lg-6 col-md-12 col-sm-12">
+                <form class="d-flex" role="search" action="{{url_for('.search_result')}}" method="get">
+                    <input class="form-control me-2 w-50" placeholder="Artiste, album, ..." aria-label="Search"
+                           id="search-comm" name="nom"
+                           placeholder="Artiste, album, ..." required>
+                    <select class="form-select form-select-sm me-3 w-25" aria-label=".form-select-sm example"
+                            name="format">
                         <option value="1">CD</option>
                         <option value="2">Vinyl</option>
                         <option value="3">Cassette</option>
                     </select>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-outline-primary">
                         Rechercher
                     </button>
-                </div>
-            </form>
-            <div class="p-2">
-                <div class="btn-group dropstart">
-                    <button type="button" class="btn btn-link dropdown-toggle" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                        {{username}}
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item text-danger" href="{{url_for('.signout')}}">déconnexion</a></li>
-                    </ul>
-                </div>
+                </form>
             </div>
         </div>
+
     </div>
 </nav>
 {% endblock %}
