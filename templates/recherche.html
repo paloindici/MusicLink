@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Résultats de la recherche {% endblock %}</h1>
+<div class="container mt-3">
+    {% if datas is not defined or datas|length == 0 %}
+        <div class="d-flex align-items-center justify-content-center" style="height: 75vh">
+            <h5 class="text-white">Aucun résultat</h5>
+            <span class="text-light fs-5">{{info}}</span>
+            <div class="spinner-grow text-light" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    {% else %}
+        {% if pagination['items'] < 25 %}
+            <div class="d-flex justify-content-center" style="height: 3vh">
+                <h5 class="text-white">{{pagination['items']}} résultats</h5>
+            </div>
+        {% else %}
+            <div class="d-flex justify-content-center" style="height: 3vh">
+                <h5 class="text-white">{{pagination['items']}} résultats. Affiner votre recherche.</h5>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <div class="row my-5 row-cols-1 row-cols-md-5 g-4">
+        {% for data in datas %}
+        <div class="col">
+            <div class="card h-100">
+                {% if not data['thumb'] %}
+                <img src="https://web.maison-jo.synology.me/images/No_image_available.png" class="card-img-top" alt="Image de l'artiste" width="200" height="200">
+                {% else %}
+                <img src="{{data['thumb']}}" class="card-img-top" alt="Image de l'artiste">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{data['title']}}</h5>
+                    <p class="card-text">Année: {{data['year']}}</p>
+                    <p class="card-text">Pays: {{data['country']}}</p>
+                    <p class="card-text">Format: {{data['format'][0]}}</p>
+                    <a class="btn btn-outline-primary" href="https://www.discogs.com/fr{{data['uri']}}" target="_blank" role="button">Accéder au Discogs</a>
+                </div>
+                <div class="card-footer bg-transparent border-dark">
+                    <form action="/result/confirmed" method="post">
+                        <input type="hidden" id="artistId" name="artistId" value={{data['id']}}>
+                        <button type="submit" class="btn btn-primary">Ajouter {{data['title']}} sur Plex</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!--TODO create service -->
+<script>
+function getHistory(index) {
+    var classList = $(`#overview-${index}`).attr("class").split(/\s+/);
+    console.log(classList);
+    console.log($.inArray("line-clamp", classList));
+    if($.inArray("line-clamp", classList) != -1) {
+        $(`#overview-${index}`).removeClass('line-clamp');
+        $(`#full-history-${index}`).html("afficher moins");
+    } else {
+        $(`#overview-${index}`).addClass('line-clamp');
+        $(`#full-history-${index}`).html("en savoir plus");
+    }
+}
+
+</script>
+{% endblock %}

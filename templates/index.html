@@ -1,5 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>{% block title %} Bienvenue {{username}} sur MusicLink ! {% endblock %}</h1>
+    <h1>{% block title %}Bonjour {{username}}, bienvenue sur MusicLink ! {% endblock %}</h1>
+    <div class="container mt-3">
+        <h5 class="small_title">Albums récemment ajoutés sur Plex:</h5>
+        <div class="row my-5 row-cols-1 row-cols-md-5 g-4">
+            {% for album in data %}
+            <div class="col">
+                <div class="card bg-dark text-white">
+                    <div class="card-image">
+                        {% if not album['thumb'] %}
+                        <img src="https://web.maison-jo.synology.me/images/No_image_available.png" class="card-img-top" alt="Image de l'album" width="140" height="140">
+                        {% else %}
+                        <img src="{{album['thumb']}}" class="card-img-top" alt="Image de l'album">
+                        {% endif %}
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="card-img-overlay">
+                        <h5 class="card-title">{{album['title']}}</h5>
+                        <p class="card-text">{{album['artist']}}</p>
+                        <p class="card-text">{{album['year']}}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

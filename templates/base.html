@@ -30,19 +30,24 @@
             <div class="p-2">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{url_for('.recherche_commercial')}}">
-                            Recherche commercial
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{url_for('.recherche_tekno')}}">Recherche Tekno</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="https://maison-jo.synology.me/index.php/contact/"
                            target="_blank">Contact</a>
                     </li>
                 </ul>
             </div>
+            <form action="{{url_for('.search_result')}}" method="get" class="row">
+                <div class="d-flex justify-content-center">
+                    <input type="text" class="form-control col-2 w-50 me-3" id="search-comm" name="nom" placeholder="Artiste, album, ..." required>
+                    <select class="form-select form-select-sm col-2 w-50 me-3" aria-label=".form-select-sm example" name="format">
+                        <option value="1">CD</option>
+                        <option value="2">Vinyl</option>
+                        <option value="3">Cassette</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">
+                        Rechercher
+                    </button>
+                </div>
+            </form>
             <div class="p-2">
                 <div class="btn-group dropstart">
                     <button type="button" class="btn btn-link dropdown-toggle" data-bs-toggle="dropdown"

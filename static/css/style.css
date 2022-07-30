@@ -4,6 +4,11 @@ h1 {
     padding: 10px;
 }
 
+.small_title {
+    color: white;
+    padding: 5px;
+}
+
 nav {
     background-color: #1d2022;
 }
@@ -38,4 +43,25 @@ nav {
     -webkit-box-shadow: rgb(21, 21, 24) 12px 12px 24px 0px inset, rgb(36, 37, 41) -12px -12px 24px 0px inset;
     border-radius: 40px;
     -webkit-border-radius: 40px;
+}
+
+.card-image {
+    position: relative;
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
+    transition: .5s ease;
+    background: rgba(0, 0, 0, 0.75);
+}
+
+.card:hover .image-overlay {
+    opacity: 1;
 }
