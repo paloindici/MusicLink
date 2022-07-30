@@ -6,6 +6,7 @@ from plexapi.myplex import MyPlexAccount
 
 import api_discogs
 import scraper_discogs
+import thread_downloader
 from db import init_db
 
 # Config de Flask
@@ -20,6 +21,14 @@ plex = PlexServer(BASE_URL_PLEX, PLEX_TOKEN)
 
 # Création de la DB au démarrage si inexistante
 location_db = init_db.gestion_fichier_database()
+if location_db is None:
+    print("Erreur : Musiclink s'arrête car il est impossible de trouver ou de créer"
+          "une base de donnée dès l'initialisation de l'application.")
+    exit()
+
+# Création d'une tache parallèle pour la gestion des téléchargements
+# thread_downloader = thread_downloader.Thread_main_downloader(1, "Main-dl")
+# thread_downloader.start()
 
 
 # Page d'accueil de MusicLink
@@ -103,11 +112,11 @@ def search_result():
                 final_list.append(album)
             if len(final_list) == 25:
                 break
-        print(response)
-        print(final_list)
+        # print(response)
+        # print(final_list)
         pagination = response['pagination']
         pagination['items'] = len(final_list)
-        print(pagination)
+        # print(pagination)
 
         for album in final_list:
             thumb = scraper_discogs.get_thumb(f"https://www.discogs.com/fr{album['uri']}")
@@ -126,6 +135,7 @@ def search_result():
         #     print(resultArtist.data)
         # conn.close()
 
+        print(final_list)
         return render_template("recherche.html", datas=final_list, pagination=pagination, username=user)
     else:
         return redirect(url_for('signin'))
@@ -136,7 +146,9 @@ def search_result():
 def confirm_add():
     if 'token' in session:
         result = request.form
-        conn = get_db_connection()
+        print(result)
+        print(result['title'])
+        # conn = get_db_connection()
         # sql = ''' INSERT INTO artistTekno(artistId, artistName, ressourceUrl, lastView) VALUES(?,?,?,?) '''
         # data = (result['artistId'], result['artistName'], result['ressourceUrl'], 0)
         # conn.execute(sql, data)

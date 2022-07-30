@@ -6,7 +6,7 @@ def get_thumb(url):
     r = requests.get(url)
     soup = BeautifulSoup(r.text, 'html.parser')
     first_filter = soup.find_all('div', {"class": "image_3rzgk bezel_2NSgk"})
-    print(first_filter)
+    # print(first_filter)
     if len(first_filter) == 0:
         return None
     image = first_filter[0].findAll('img')

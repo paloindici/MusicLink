@@ -41,11 +41,17 @@
                 </div>
                 <div class="card-footer bg-transparent border-dark">
                     <form action="/result/confirmed" method="post">
-                        <input type="hidden" id="artistId" name="artistId" value={{data['id']}}>
+                        <input type="hidden" id="title" name="title" value={{data['title']}}>
+                        <input type="hidden" id="id" name="id" value={{data['id']}}>
+                        <input type="hidden" id="resource_url" name="resource_url" value={{data['resource_url']}}>
+                        <input type="hidden" id="uri" name="uri" value={{data['uri']}}>
+                        <input type="hidden" id="format" name="format" value={{data['format'][0]}}>
+                        <input type="hidden" id="genre" name="genre" value={{data['genre']}}>
+                        <input type="hidden" id="master_id" name="master_id" value={{data['master_id']}}>
+                        <input type="hidden" id="master_url" name="master_url" value={{data['master_url']}}>
                         <button type="submit" class="btn btn-primary">Ajouter {{data['title']}} sur Plex</button>
                     </form>
                 </div>
-
             </div>
         </div>
         {% endfor %}
