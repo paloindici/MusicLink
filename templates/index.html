@@ -10,7 +10,7 @@
                 <div class="col">
                     <div class="card bg-dark text-white">
                         <div class="card-image">
-                            {% if not album['thumb'] %}
+                            {% if not album['thumb'] and album['thumb'] == "" and album['thumb'] is not None%}
                             <img src="https://web.maison-jo.synology.me/images/No_image_available.png"
                                  class="card-img-top"
                                  alt="Image de l'album" width="140" height="140">
