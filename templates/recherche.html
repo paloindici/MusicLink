@@ -12,13 +12,13 @@
         </div>
     </div>
     {% else %}
-    {% if pagination['items'] < 25 %}
+    {% if number < 25 %}
     <div class="d-flex justify-content-center" style="height: 3vh">
-        <h5 class="text-white">{{pagination['items']}} résultats</h5>
+        <h5 class="text-white">{{number}} résultats</h5>
     </div>
     {% else %}
     <div class="d-flex justify-content-center" style="height: 3vh">
-        <h5 class="text-white">{{pagination['items']}} résultats. Affiner votre recherche.</h5>
+        <h5 class="text-white">{{number}} résultats. Affiner votre recherche.</h5>
     </div>
     {% endif %}
     {% endif %}
@@ -119,12 +119,6 @@ function getHistory(index) {
         $(`#full-history-${index}`).html("en savoir plus");
     }
 }
-
-
-
-
-
-
 
 </script>
 {% endblock %}

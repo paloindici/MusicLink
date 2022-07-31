@@ -1,10 +1,8 @@
 import os
-import sqlite3
 from flask import Flask, render_template, request, session, redirect, url_for
 from plexapi.server import PlexServer
 from plexapi.myplex import MyPlexAccount
 
-import api_discogs
 import thread_downloader
 import tools
 from db import init_db, functions_db
@@ -81,39 +79,14 @@ def signout():
 @app.route('/result/search', methods=['GET'])
 def search_result():
     if 'token' in session:
-        format = {
-            1: 'CD',
-            2: 'Vinyl',
-            3: 'Cassette'
-        }
-        list_master_id = []
-        final_list = []
         user = MyPlexAccount(token=session['token']).username
         result = request.args
-        response = api_discogs.search(result['nom'], format[int(result['format'])])
-        response_result = response['results']
-        for album in response_result:
-            if not album['master_id'] in list_master_id:
-                list_master_id.append(album['master_id'])
-                final_list.append(album)
-        # print(response)
-        # print(final_list)
-        pagination = response['pagination']
-        pagination['items'] = len(final_list)
-        # print(pagination)
-
-        # Analyse de la DB pour savoir si déjà présent dans les demandes
-        for item in final_list:
-            exist = functions_db.read_db_verify_if_exist(functions_db.get_db_connection(location_db), str(item['master_id']))
-            if exist:
-                item['exist'] = True
-            else:
-                item['exist'] = False
-
+        final_list = tools.search_result(result, location_db)
+        number = len(final_list)
         library_name = list(LIBRARY_NAME.split(","))
 
-        print(final_list)
-        return render_template("recherche.html", datas=final_list, pagination=pagination, library_name=library_name, username=user)
+        # print(final_list)
+        return render_template("recherche.html", datas=final_list, number=number, library_name=library_name, username=user)
     else:
         return redirect(url_for('signin'))
 
