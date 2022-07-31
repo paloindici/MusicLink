@@ -50,19 +50,53 @@
                         </div>
                     </div>
                     {% else %}
-                    <form action="/result/confirmed" method="post">
-                        <input type="hidden" id="title" name="title" value="{{data['title']}}">
-                        <input type="hidden" id="id" name="id" value="{{data['id']}}">
-                        <input type="hidden" id="resource_url" name="resource_url" value="{{data['resource_url']}}">
-                        <input type="hidden" id="uri" name="uri" value="{{data['uri']}}">
-                        <input type="hidden" id="format" name="format" value="{{data['format'][0]}}">
-                        <input type="hidden" id="genre" name="genre" value="{{data['genre']}}">
-                        <input type="hidden" id="master_id" name="master_id" value="{{data['master_id']}}">
-                        <input type="hidden" id="master_url" name="master_url" value="{{data['master_url']}}">
-                        <div class="w-100 text-start">
-                            <button type="submit" class="btn btn-primary w-100">Ajouter sur Plex</button>
+                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                        Ajouter sur Plex
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Sélection de la bibliothèque</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                </div>
+                                <form action="/result/confirmed" method="post">
+                                    <div class="modal-body">
+                                        Sélectionner la bibliothèque correspondant à {{data['title']}}
+                                        {% for library in library_name %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="songStyle"
+                                                   id="songStyle-{{library}}" value="{{library}}">
+                                            <label class="form-check-label" for="songStyle-{{library}}">
+                                                {{library}}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                        <input type="hidden" id="title" name="title" value="{{data['title']}}">
+                                        <input type="hidden" id="id" name="id" value="{{data['id']}}">
+                                        <input type="hidden" id="resource_url" name="resource_url"
+                                               value="{{data['resource_url']}}">
+                                        <input type="hidden" id="uri" name="uri" value="{{data['uri']}}">
+                                        <input type="hidden" id="format" name="format" value="{{data['format'][0]}}">
+                                        <input type="hidden" id="genre" name="genre" value="{{data['genre']}}">
+                                        <input type="hidden" id="master_id" name="master_id"
+                                               value="{{data['master_id']}}">
+                                        <input type="hidden" id="master_url" name="master_url"
+                                               value="{{data['master_url']}}">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">Ajouter sur Plex</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    </form>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -85,6 +119,12 @@ function getHistory(index) {
         $(`#full-history-${index}`).html("en savoir plus");
     }
 }
+
+
+
+
+
+
 
 </script>
 {% endblock %}

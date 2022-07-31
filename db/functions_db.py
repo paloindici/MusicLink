@@ -63,7 +63,7 @@ def update_db_traite(conn, master_id):
     conn.commit()
 
 
-def write_db_new_item(conn, title, release_id, release_resource_url, release_uri, format, genre, master_id, master_url):
+def write_db_new_item(conn, title, release_id, release_resource_url, release_uri, format, genre, master_id, master_url, songStyle):
     """
     Write new item in the database
     :param conn: Database connection object
@@ -75,10 +75,11 @@ def write_db_new_item(conn, title, release_id, release_resource_url, release_uri
     :param genre: Release music style
     :param master_id: Master identifier
     :param master_url: Master URL
+    :param songStyle: Style of the song
     :return: None
     """
-    sql = ''' INSERT INTO albums(title, releaseId, releaseResourceUrl, releaseUri, format, genre, masterId, masterUrl, lastView) VALUES(?,?,?,?,?,?,?,?,?) '''
-    data = (title, release_id, release_resource_url, release_uri, format, genre, master_id, master_url, 0)
+    sql = ''' INSERT INTO albums(title, releaseId, releaseResourceUrl, releaseUri, format, genre, masterId, masterUrl, lastView, songStyle) VALUES(?,?,?,?,?,?,?,?,?,?) '''
+    data = (title, release_id, release_resource_url, release_uri, format, genre, master_id, master_url, 0, songStyle)
     cur = conn.cursor()
     cur.execute(sql, data)
     conn.commit()

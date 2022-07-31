@@ -103,18 +103,17 @@ def search_result():
         # print(pagination)
 
         # Analyse de la DB pour savoir si déjà présent dans les demandes
-        conn = functions_db.get_db_connection(location_db)
-        cur = conn.cursor()
         for item in final_list:
             exist = functions_db.read_db_verify_if_exist(functions_db.get_db_connection(location_db), str(item['master_id']))
             if exist:
                 item['exist'] = True
             else:
                 item['exist'] = False
-        conn.close()
+
+        library_name = list(LIBRARY_NAME.split(","))
 
         print(final_list)
-        return render_template("recherche.html", datas=final_list, pagination=pagination, username=user)
+        return render_template("recherche.html", datas=final_list, pagination=pagination, library_name=library_name, username=user)
     else:
         return redirect(url_for('signin'))
 
@@ -125,7 +124,7 @@ def confirm_add():
     if 'token' in session:
         result = request.form.to_dict()
         # print(result)
-        functions_db.write_db_new_item(functions_db.get_db_connection(location_db), result['title'], result['id'], result['resource_url'], result['uri'], result['format'], result['genre'], result['master_id'], result['master_url'])
+        functions_db.write_db_new_item(functions_db.get_db_connection(location_db), result['title'], result['id'], result['resource_url'], result['uri'], result['format'], result['genre'], result['master_id'], result['master_url'], result['songStyle'])
 
         return render_template('confirmation.html', data=result)
     else:
