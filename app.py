@@ -6,7 +6,7 @@ from plexapi.myplex import MyPlexAccount
 
 import api_discogs
 import thread_downloader
-from db import init_db
+from db import init_db, functions_db
 
 # Config de Flask
 app = Flask(__name__)
@@ -26,7 +26,7 @@ if location_db is None:
     exit()
 
 # Création d'une tache parallèle pour la gestion des téléchargements
-# thread_downloader = thread_downloader.Thread_main_downloader(1, "Main-dl")
+# thread_downloader = thread_downloader.Thread_main_downloader(1, "Main-dl", location_db)
 # thread_downloader.start()
 
 
@@ -116,17 +116,15 @@ def search_result():
         # print(pagination)
 
         # Analyse de la DB pour savoir si déjà présent dans les demandes
-        # conn = get_db_connection()
-        # cur = conn.cursor()
-        # for resultArtist in resultSearch:
-        #     cur.execute("SELECT * FROM artistTekno WHERE artistId=?", [(str(resultArtist.data['id']))])
-        #     rows = cur.fetchall()
-        #     if rows:
-        #         print("present")
-        #         resultArtist.data['exist'] = True
-        #     conn.commit()
-        #     print(resultArtist.data)
-        # conn.close()
+        conn = functions_db.get_db_connection(location_db)
+        cur = conn.cursor()
+        for item in final_list:
+            exist = functions_db.read_db_verify_if_exist(functions_db.get_db_connection(location_db), str(item['master_id']))
+            if exist:
+                item['exist'] = True
+            else:
+                item['exist'] = False
+        conn.close()
 
         print(final_list)
         return render_template("recherche.html", datas=final_list, pagination=pagination, username=user)
@@ -139,25 +137,12 @@ def search_result():
 def confirm_add():
     if 'token' in session:
         result = request.form.to_dict()
-        print(result)
-        # print(result['title'])
-        # conn = get_db_connection()
-        # sql = ''' INSERT INTO artistTekno(artistId, artistName, ressourceUrl, lastView) VALUES(?,?,?,?) '''
-        # data = (result['artistId'], result['artistName'], result['ressourceUrl'], 0)
-        # conn.execute(sql, data)
-        # conn.commit()
-        # conn.close()
+        # print(result)
+        functions_db.write_db_new_item(functions_db.get_db_connection(location_db), result['title'], result['id'], result['resource_url'], result['uri'], result['format'], result['genre'], result['master_id'], result['master_url'])
 
         return render_template('confirmation.html', data=result)
     else:
         return redirect(url_for('signin'))
-
-
-# Fonction de connection a la base de donnée
-def get_db_connection():
-    conn = sqlite3.connect(location_db)
-    conn.row_factory = sqlite3.Row
-    return conn
 
 
 if __name__ == "__main__":

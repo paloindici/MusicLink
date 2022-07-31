@@ -28,9 +28,9 @@
         <div class="col-md-4 col-lg-3">
             <div class="card h-100">
                 {% if not data['thumb'] %}
-                <img src="https://web.maison-jo.synology.me/images/No_image_available.png" class="card-img-top" alt="Image de l'artiste" width="200" height="200">
+                    <img src="https://web.maison-jo.synology.me/images/No_image_available.png" class="card-img-top" alt="Image de l'artiste" width="200" height="200">
                 {% else %}
-                <img src="{{data['thumb']}}" class="card-img-top" alt="Image de l'artiste">
+                    <img src="{{data['thumb']}}" class="card-img-top" alt="Image de l'artiste">
                 {% endif %}
                 <div class="card-body">
                     <h5 class="card-title">{{data['title']}}</h5>
@@ -40,17 +40,21 @@
                     <a class="btn btn-outline-primary" href="https://www.discogs.com/fr{{data['uri']}}" target="_blank" role="button">Accéder au Discogs</a>
                 </div>
                 <div class="card-footer bg-transparent border-dark">
-                    <form action="/result/confirmed" method="post">
-                        <input type="hidden" id="title" name="title" value="{{data['title']}}">
-                        <input type="hidden" id="id" name="id" value="{{data['id']}}">
-                        <input type="hidden" id="resource_url" name="resource_url" value="{{data['resource_url']}}">
-                        <input type="hidden" id="uri" name="uri" value="{{data['uri']}}">
-                        <input type="hidden" id="format" name="format" value="{{data['format'][0]}}">
-                        <input type="hidden" id="genre" name="genre" value="{{data['genre']}}">
-                        <input type="hidden" id="master_id" name="master_id" value="{{data['master_id']}}">
-                        <input type="hidden" id="master_url" name="master_url" value="{{data['master_url']}}">
-                        <button type="submit" class="btn btn-primary">Ajouter {{data['title']}} sur Plex</button>
-                    </form>
+                    {% if data['exist'] %}
+                        <p class="bg-success text-white">{{data['title']}} a déjà été demandé</p>
+                    {% else %}
+                        <form action="/result/confirmed" method="post">
+                            <input type="hidden" id="title" name="title" value="{{data['title']}}">
+                            <input type="hidden" id="id" name="id" value="{{data['id']}}">
+                            <input type="hidden" id="resource_url" name="resource_url" value="{{data['resource_url']}}">
+                            <input type="hidden" id="uri" name="uri" value="{{data['uri']}}">
+                            <input type="hidden" id="format" name="format" value="{{data['format'][0]}}">
+                            <input type="hidden" id="genre" name="genre" value="{{data['genre']}}">
+                            <input type="hidden" id="master_id" name="master_id" value="{{data['master_id']}}">
+                            <input type="hidden" id="master_url" name="master_url" value="{{data['master_url']}}">
+                            <button type="submit" class="btn btn-primary">Ajouter {{data['title']}} sur Plex</button>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
