@@ -4,9 +4,10 @@
 <div class="container-fluid mt-3">
     <div class="row">
         <div class="offset-1 col-10">
-            <h2 class="text-light py-3">Récemment ajoutés sur Plex</h2>
+            {% for key in data %}
+            <h2 class="text-light py-3">Récemment ajoutés dans {{key}}</h2>
             <div class="slider demo">
-                {% for album in data %}
+                {% for album in data[key] %}
                 <div class="col">
                     <div class="card bg-dark text-white">
                         <div class="card-image">
@@ -28,6 +29,7 @@
                 </div>
                 {% endfor %}
             </div>
+        {% endfor %}
         </div>
     </div>
 </div>

@@ -6,6 +6,7 @@ from plexapi.myplex import MyPlexAccount
 
 import api_discogs
 import thread_downloader
+import tools
 from db import init_db, functions_db
 
 # Config de Flask
@@ -16,6 +17,7 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 # Config des API - services externes
 PLEX_TOKEN = os.getenv('PLEX_TOKEN')
 BASE_URL_PLEX = os.getenv('BASE_URL_PLEX')
+LIBRARY_NAME = os.getenv('LIBRARY_NAME')
 plex = PlexServer(BASE_URL_PLEX, PLEX_TOKEN)
 
 # Création de la DB au démarrage si inexistante
@@ -36,24 +38,9 @@ def index():
     if 'token' in session:
         user = MyPlexAccount(token=session['token']).username
 
-        recentMusique = plex.library.section('Musique').recentlyAddedAlbums(maxresults=10)
-        recentTekno = plex.library.section('Tekno').recentlyAddedAlbums(maxresults=10)
+        recently_added = tools.view_new_added(plex, LIBRARY_NAME)
 
-        recentAdded = []
-
-        for i in range(len(recentMusique)):
-            recentAdded.append({'title': recentMusique[i].title,
-                                'artist': recentMusique[i].artist().title,
-                                'thumb': recentMusique[i].posterUrl,
-                                'year': recentMusique[i].year})
-
-        for i in range(len(recentTekno)):
-            recentAdded.append({'title': recentTekno[i].title,
-                                'artist': recentTekno[i].artist().title,
-                                'thumb': recentTekno[i].posterUrl,
-                                'year': recentTekno[i].year})
-
-        return render_template('index.html', data=recentAdded, username=user)
+        return render_template('index.html', data=recently_added, username=user)
     else:
         return redirect(url_for('signin'))
 
