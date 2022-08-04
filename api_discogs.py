@@ -4,6 +4,8 @@ import os
 import requests
 from ratelimit import limits, sleep_and_retry
 
+# Doc : https://www.discogs.com/developers
+
 ONE_MINUTE = 60
 MAX_CALLS_PER_MINUTE = 60
 base_url = 'https://api.discogs.com/'
@@ -25,7 +27,7 @@ def getApi(url):
     }
 
     response = requests.get(url, headers=headers, timeout=10)
-    # print(f"{url}: {response.status_code}")
+    print(f"{url}: {response.status_code}")
 
     if response.status_code == 200:
         result = json.loads(response.text)
@@ -36,13 +38,13 @@ def getApi(url):
 
 def search(name, format, type='release', per_page=100, page=1):
     """
-    Rechercher un artiste dans la base de donnée de discogs
-    :param name : Nom de l'artiste à rechercher
-    :param format : Format de la recherche ex: vinyl, cd, ...
-    :param type : Type de la recherche
-    :param per_page : Nombre de résultats souhaiter par page
-    :param page : Numéro de la page à afficher
-    :return : Liste des artistes trouvés
+    Search in the discogs database
+    :param name : Album title
+    :param format : Search Format ex: vinyl, cd, ...
+    :param type : Type of research
+    :param per_page : Number of desired results per page
+    :param page : Page number to display
+    :return : Discogs API search answer
     """
     final_name = name.replace(" ", "%20")
     return getApi(f'{base_url}database/search?q={final_name}'
@@ -52,17 +54,10 @@ def search(name, format, type='release', per_page=100, page=1):
                   f'&page={page}')
 
 
-def artist(id, sort='year', sort_order='desc', per_page=100, page=1):
+def release(id):
     """
-    Rechercher les sorties d'un artiste dans la base de donnée de discogs
-    :param id : Id de l'artiste à rechercher
-    :param sort : Type de tri des résultats
-    :param sort_order : Sens de tri des résultats
-    :param per_page : Nombre de résultats souhaiter par page
-    :param page : Numéro de la page à afficher
-    :return : Liste des sorties de l'artiste
+    Retrieve album information from Discogs
+    :param id : Release ID
+    :return : Release details
     """
-    return getApi(f'{base_url}/artists/{id}/releases?sort={sort}'
-                  f'&sort_order={sort_order}'
-                  f'&per_page={per_page}'
-                  f'&page={page}')
+    return getApi(f'{base_url}releases/{id}')

@@ -3,9 +3,9 @@ from flask import Flask, render_template, request, session, redirect, url_for
 from plexapi.server import PlexServer
 from plexapi.myplex import MyPlexAccount
 
-import thread_downloader
 import tools
 from db import init_db, functions_db
+from downloader import thread_downloader
 
 # Config de Flask
 app = Flask(__name__)
@@ -16,6 +16,7 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 PLEX_TOKEN = os.getenv('PLEX_TOKEN')
 BASE_URL_PLEX = os.getenv('BASE_URL_PLEX')
 LIBRARY_NAME = os.getenv('LIBRARY_NAME')
+DEBUG = os.getenv('DEBUG', '0')
 plex = PlexServer(BASE_URL_PLEX, PLEX_TOKEN)
 
 # Création de la DB au démarrage si inexistante
@@ -26,8 +27,7 @@ if location_db is None:
     exit()
 
 # Création d'une tache parallèle pour la gestion des téléchargements
-# thread_downloader = thread_downloader.Thread_main_downloader(1, "Main-dl", location_db)
-# thread_downloader.start()
+thread_downloader = thread_downloader.Thread_main_downloader(1, "Main-dl", location_db)
 
 
 # Page d'accueil de MusicLink
@@ -86,7 +86,8 @@ def search_result():
         library_name = list(LIBRARY_NAME.split(","))
 
         # print(final_list)
-        return render_template("recherche.html", datas=final_list, number=number, library_name=library_name, username=user)
+        return render_template("recherche.html", datas=final_list, number=number, library_name=library_name,
+                               username=user)
     else:
         return redirect(url_for('signin'))
 
@@ -97,7 +98,11 @@ def confirm_add():
     if 'token' in session:
         result = request.form.to_dict()
         # print(result)
-        functions_db.write_db_new_item(functions_db.get_db_connection(location_db), result['title'], result['id'], result['resource_url'], result['uri'], result['format'], result['genre'], result['master_id'], result['master_url'], result['songStyle'])
+        functions_db.write_db_new_item(functions_db.get_db_connection(location_db), result['title'], result['id'],
+                                       result['resource_url'], result['uri'], result['format'], result['genre'],
+                                       result['master_id'], result['master_url'], result['songStyle'])
+        if DEBUG != '1' and DEBUG != 'true' and DEBUG is not True:
+            thread_downloader.start()
 
         return render_template('confirmation.html', data=result)
     else:
