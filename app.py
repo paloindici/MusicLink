@@ -35,10 +35,11 @@ thread_downloader = thread_downloader.Thread_main_downloader(1, "Main-dl", locat
 def index():
     if 'token' in session:
         user = MyPlexAccount(token=session['token']).username
+        is_admin = tools.is_admin(plex, user)
 
         recently_added = tools.view_new_added(plex, LIBRARY_NAME)
 
-        return render_template('index.html', data=recently_added, username=user)
+        return render_template('index.html', data=recently_added, username=user, isadmin=is_admin)
     else:
         return redirect(url_for('signin'))
 
@@ -76,10 +77,27 @@ def signout():
     return redirect(url_for('signin'))
 
 
+@app.route('/settings', methods=['GET'])
+def settings():
+    if 'token' in session:
+        user = MyPlexAccount(token=session['token']).username
+        is_admin = tools.is_admin(plex, user)
+
+        datas = {
+            'plex_url': BASE_URL_PLEX,
+            'plex_token': PLEX_TOKEN
+        }
+
+        return render_template('configuration.html', datas=datas, username=user, isadmin=is_admin)
+    else:
+        return redirect(url_for('signin'))
+
+
 @app.route('/result/search', methods=['GET'])
 def search_result():
     if 'token' in session:
         user = MyPlexAccount(token=session['token']).username
+        is_admin = tools.is_admin(plex, user)
         result = request.args
         final_list = tools.search_result(result, location_db)
         number = len(final_list)
@@ -87,7 +105,7 @@ def search_result():
 
         # print(final_list)
         return render_template("recherche.html", datas=final_list, number=number, library_name=library_name,
-                               username=user)
+                               username=user, isadmin=is_admin)
     else:
         return redirect(url_for('signin'))
 
@@ -96,6 +114,8 @@ def search_result():
 @app.route('/result/confirmed', methods=['POST'])
 def confirm_add():
     if 'token' in session:
+        user = MyPlexAccount(token=session['token']).username
+        is_admin = tools.is_admin(plex, user)
         result = request.form.to_dict()
         # print(result)
         functions_db.write_db_new_item(functions_db.get_db_connection(location_db), result['title'], result['id'],
@@ -104,7 +124,7 @@ def confirm_add():
         if DEBUG != '1' and DEBUG != 'true' and DEBUG is not True:
             thread_downloader.start()
 
-        return render_template('confirmation.html', data=result)
+        return render_template('confirmation.html', data=result, username=user, isadmin=is_admin)
     else:
         return redirect(url_for('signin'))
 

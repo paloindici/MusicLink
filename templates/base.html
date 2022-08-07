@@ -33,6 +33,13 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarScroll">
             <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+                {% if isadmin %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('.settings')}}">
+                        Paramètres
+                    </a>
+                </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="https://maison-jo.synology.me/index.php/contact/"
                        target="_blank">Contact</a>

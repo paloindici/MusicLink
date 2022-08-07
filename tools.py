@@ -42,16 +42,35 @@ def search_result(form_search, location_db):
     response_result = response['results']
     for album in response_result:
         if not album['master_id'] in list_master_id:
-            list_master_id.append(album['master_id'])
             final_list.append(album)
+            if album['master_id'] != 0:
+                list_master_id.append(album['master_id'])
 
     # Analyse de la DB pour savoir si déjà présent dans les demandes
     for item in final_list:
-        exist = functions_db.read_db_verify_if_exist(functions_db.get_db_connection(location_db),
-                                                     str(item['master_id']))
+        if item['master_id'] != 0:
+            exist = functions_db.read_db_verify_if_master_exist(functions_db.get_db_connection(location_db),
+                                                                str(item['master_id']))
+        else:
+            exist = functions_db.read_db_verify_if_release_exist(functions_db.get_db_connection(location_db),
+                                                                 str(item['id']))
         if exist:
             item['exist'] = True
         else:
             item['exist'] = False
 
     return final_list
+
+
+def is_admin(plex, user):
+    """
+    Verify if connected user is Plex admin
+    :param plex: Plex connection
+    :param user: Connected username
+    :return: True if Admin, or False
+    """
+    usernameAdmin = plex.myPlexAccount().username
+    print(f"{usernameAdmin} -> {user}")
+    if usernameAdmin == user:
+        return True
+    return False

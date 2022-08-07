@@ -13,7 +13,7 @@ def get_db_connection(path):
     return conn
 
 
-def read_db_verify_if_exist(conn, master_id):
+def read_db_verify_if_master_exist(conn, master_id):
     """
     Checks if the album data already exists in database
     :param conn: Database connection object
@@ -23,6 +23,25 @@ def read_db_verify_if_exist(conn, master_id):
     sql = """SELECT * FROM albums WHERE masterId=?"""
     cur = conn.cursor()
     cur.execute(sql, [master_id])
+
+    rows = cur.fetchall()
+
+    if rows:
+        return rows
+    else:
+        return False
+
+
+def read_db_verify_if_release_exist(conn, release_id):
+    """
+    Checks if the album data already exists in database
+    :param conn: Database connection object
+    :param release_id: Release identifier
+    :return: True if album exists, otherwise false
+    """
+    sql = """SELECT * FROM albums WHERE releaseId=?"""
+    cur = conn.cursor()
+    cur.execute(sql, [release_id])
 
     rows = cur.fetchall()
 
