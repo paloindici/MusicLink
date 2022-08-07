@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, session, redirect, url_for
 from plexapi.server import PlexServer
 from plexapi.myplex import MyPlexAccount
 
+import api_discogs
 import tools
 from db import init_db, functions_db
 from downloader import thread_downloader
@@ -12,12 +13,29 @@ app = Flask(__name__)
 app.config.from_pyfile('config.py')
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
+# Config generale de musiclink
+location_config = tools.gestion_fichier_config()
+
+plex_error = False
+discogs_error = False
+
 # Config des API - services externes
-PLEX_TOKEN = os.getenv('PLEX_TOKEN')
-BASE_URL_PLEX = os.getenv('BASE_URL_PLEX')
+PLEX_TOKEN = tools.read_config(location_config, 'plex_token')
+BASE_URL_PLEX = tools.read_config(location_config, 'plex_url')
+DISCOGS_TOKEN = tools.read_config(location_config, 'discogs_token')
+
 LIBRARY_NAME = os.getenv('LIBRARY_NAME')
 DEBUG = os.getenv('DEBUG', '0')
-plex = PlexServer(BASE_URL_PLEX, PLEX_TOKEN)
+try:
+    plex = PlexServer(BASE_URL_PLEX, PLEX_TOKEN)
+except:
+    plex_error = True
+
+try:
+    api_discogs.search('nirvanna', 'CD', DISCOGS_TOKEN)
+except:
+    discogs_error = True
+
 
 # Création de la DB au démarrage si inexistante
 location_db = init_db.gestion_fichier_database()
@@ -27,12 +45,14 @@ if location_db is None:
     exit()
 
 # Création d'une tache parallèle pour la gestion des téléchargements
-thread_downloader = thread_downloader.Thread_main_downloader(1, "Main-dl", location_db)
+thread_downloader = thread_downloader.Thread_main_downloader(1, "Main-dl", location_db, DISCOGS_TOKEN)
 
 
 # Page d'accueil de MusicLink
 @app.route('/')
 def index():
+    if not tools.verify_config(location_config) or plex_error or discogs_error:
+        return render_template('demarrage.html', datas=tools.read_config_content(location_config))
     if 'token' in session:
         user = MyPlexAccount(token=session['token']).username
         is_admin = tools.is_admin(plex, user)
@@ -46,6 +66,8 @@ def index():
 
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
+    if not tools.verify_config(location_config) or plex_error or discogs_error:
+        return render_template('demarrage.html', datas=tools.read_config_content(location_config))
     error = None
     if request.method == 'POST':
         userEmail = request.form['email']
@@ -73,19 +95,24 @@ def signin():
 
 @app.route('/signout')
 def signout():
+    if not tools.verify_config(location_config) or plex_error or discogs_error:
+        return render_template('demarrage.html', datas=tools.read_config_content(location_config))
     session.clear()
     return redirect(url_for('signin'))
 
 
 @app.route('/settings', methods=['GET'])
 def settings():
+    if not tools.verify_config(location_config) or plex_error or discogs_error:
+        return render_template('demarrage.html', datas=tools.read_config_content(location_config))
     if 'token' in session:
         user = MyPlexAccount(token=session['token']).username
         is_admin = tools.is_admin(plex, user)
 
         datas = {
             'plex_url': BASE_URL_PLEX,
-            'plex_token': PLEX_TOKEN
+            'plex_token': PLEX_TOKEN,
+            'discord_token': DISCOGS_TOKEN
         }
 
         return render_template('configuration.html', datas=datas, username=user, isadmin=is_admin)
@@ -95,11 +122,13 @@ def settings():
 
 @app.route('/result/search', methods=['GET'])
 def search_result():
+    if not tools.verify_config(location_config) or plex_error or discogs_error:
+        return render_template('demarrage.html', datas=tools.read_config_content(location_config))
     if 'token' in session:
         user = MyPlexAccount(token=session['token']).username
         is_admin = tools.is_admin(plex, user)
         result = request.args
-        final_list = tools.search_result(result, location_db)
+        final_list = tools.search_result(result, location_db, DISCOGS_TOKEN)
         number = len(final_list)
         library_name = list(LIBRARY_NAME.split(","))
 
@@ -113,6 +142,8 @@ def search_result():
 # Page de confirmation de l'ajout d'un album
 @app.route('/result/confirmed', methods=['POST'])
 def confirm_add():
+    if not tools.verify_config(location_config) or plex_error or discogs_error:
+        return render_template('demarrage.html', datas=tools.read_config_content(location_config))
     if 'token' in session:
         user = MyPlexAccount(token=session['token']).username
         is_admin = tools.is_admin(plex, user)
@@ -127,6 +158,39 @@ def confirm_add():
         return render_template('confirmation.html', data=result, username=user, isadmin=is_admin)
     else:
         return redirect(url_for('signin'))
+
+
+# Écrit la configuration du premier démarrage
+@app.route('/writeconfig', methods=['POST'])
+def writeconfig():
+    global plex, plex_error, discogs_error, PLEX_TOKEN, BASE_URL_PLEX, DISCOGS_TOKEN
+    result = request.form.to_dict()
+    print(result)
+    tools.write_config(location_config, result)
+
+    PLEX_TOKEN = result['plex_token']
+    BASE_URL_PLEX = result['plex_url']
+    DISCOGS_TOKEN = result['discogs_token']
+
+    test_discogs = api_discogs.search('nirvanna', 'CD', DISCOGS_TOKEN)
+    if test_discogs is not None:
+        discogs_error = False
+    else:
+        discogs_error = True
+
+    try:
+        plex = PlexServer(BASE_URL_PLEX, PLEX_TOKEN)
+        plex_error = False
+    except:
+        plex_error = True
+
+    if not plex_error and not discogs_error:
+        return redirect(url_for('signin'))
+    else:
+        return render_template('demarrage.html',
+                               datas=tools.read_config_content(location_config),
+                               plex_error=plex_error,
+                               discogs_error=discogs_error)
 
 
 if __name__ == "__main__":

@@ -8,6 +8,7 @@ venv
 database.db
 favicon.png
 favicon.psd
+config.json
 
 #ide
 .idea

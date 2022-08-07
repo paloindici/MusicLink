@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">MusicLink</a>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="bg-dark text-light" style="height: 100vh">
+    <div class="d-flex flex-column justify-content-center align-items-center" style="height: 100vh">
+        <h2 class="d-flex text-light mb-5">
+            Configuration
+        </h2>
+        {% if plex_error %}
+        <p>La connection a Plex est impossible. Vérifiez l'URL et le token.</p>
+        {% endif %}
+        {% if discogs_error %}
+        <p>La connection a Discogs est impossible. Vérifiez le token.</p>
+        {% endif %}
+        <form method="post" action="{{url_for('.writeconfig')}}">
+            <div class="mb-3">
+                <label for="plex_url" class="form-label">URL Plex</label>
+                <input type="text" class="form-control" id="plex_url" name="plex_url"
+                       placeholder="https://plex.ndd.fr" value="{{datas['plex_url']}}" required>
+            </div>
+            <div class="mb-3">
+                <label for="plex_token" class="form-label">Token Plex</label>
+                <input type="text" class="form-control" id="plex_token" name="plex_token"
+                       placeholder="a0B1c2D3e4F5g6H7i8J9" value="{{datas['plex_token']}}" required>
+            </div>
+            <div class="mb-3">
+                <label for="discogs_token" class="form-label">Token Discogs</label>
+                <input type="text" class="form-control" id="discogs_token" name="discogs_token"
+                       placeholder="a0B1c2D3e4F5g6H7i8J9" value="{{datas['discogs_token']}}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Valider</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

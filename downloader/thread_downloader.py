@@ -8,17 +8,18 @@ exitFlag = 0
 
 
 class Thread_main_downloader(threading.Thread):
-    def __init__(self, threadID, name, chemin_db):
+    def __init__(self, threadID, name, chemin_db, discogs_token):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
         self.chemin_db = chemin_db
+        self.discogs_token = discogs_token
 
     def run(self):
         non_traite = functions_db.read_db_non_traite(functions_db.get_db_connection(self.chemin_db))
         print("Item non traités:")
         for item in non_traite:
-            release = api_discogs.release(item['releaseId'])
+            release = api_discogs.release(item['releaseId'], self.discogs_token)
             print(release)
             release['artists_sort'] = release['artists_sort'].replace("/", "&")
             folder = f"{release['artists_sort']} - {release['title']}"
