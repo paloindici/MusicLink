@@ -25,16 +25,27 @@
                 <label for="plex_url" class="form-label">URL Plex</label>
                 <input type="text" class="form-control" id="plex_url" name="plex_url"
                        placeholder="https://plex.ndd.fr" value="{{datas['plex_url']}}" required>
+                <small id="plex_url_help" class="form-text text-white">
+                    Lien de votre serveur Plex. ex: https://plex.ma-maison.fr
+                </small>
             </div>
             <div class="mb-3">
                 <label for="plex_token" class="form-label">Token Plex</label>
                 <input type="text" class="form-control" id="plex_token" name="plex_token"
                        placeholder="a0B1c2D3e4F5g6H7i8J9" value="{{datas['plex_token']}}" required>
+                <small id="plex_token_help" class="form-text text-white">
+                    Token de votre serveur Plex.
+                    <a href="https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/" target="_blank">Trouver votre Token Plex</a>
+                </small>
             </div>
             <div class="mb-3">
                 <label for="discogs_token" class="form-label">Token Discogs</label>
                 <input type="text" class="form-control" id="discogs_token" name="discogs_token"
                        placeholder="a0B1c2D3e4F5g6H7i8J9" value="{{datas['discogs_token']}}" required>
+                <small id="discogs_token_help" class="form-text text-white">
+                    Token de votre compte Discogs.
+                    <a href="https://www.discogs.com/fr/settings/developers" target="_blank">Trouver votre Token Discogs</a>
+                </small>
             </div>
             <button type="submit" class="btn btn-primary">Valider</button>
         </form>

@@ -75,7 +75,7 @@ def is_admin(plex, user):
     :return: True if Admin, or False
     """
     usernameAdmin = plex.myPlexAccount().username
-    print(f"{usernameAdmin} -> {user}")
+    # print(f"{usernameAdmin} -> {user}")
     if usernameAdmin == user:
         return True
     return False
@@ -136,17 +136,6 @@ def verify_config(location_config):
         return False
 
 
-def read_config_content(location_config):
-    """
-    Lis le fichier de configuration et retourne son contenu
-    :param location_config : Lien d'accès au fichier de config
-    :return: Contenu du fichier de configuration
-    """
-    with open(location_config) as outfile:
-        datas = json.load(outfile)
-        return datas
-
-
 def write_config(location_config, new_datas):
     """
     Écrit le fichier de configuration
@@ -156,6 +145,31 @@ def write_config(location_config, new_datas):
     datas['plex_url'] = new_datas['plex_url']
     datas['plex_token'] = new_datas['plex_token']
     datas['discogs_token'] = new_datas['discogs_token']
+    with open(location_config, "w") as outfile:
+        json.dump(datas, outfile, indent=4)
+
+
+def write_config_all(location_config, new_datas):
+    """
+    Écrit le fichier de configuration
+    """
+    with open(location_config) as outfile:
+        datas = json.load(outfile)
+    datas['plex_url'] = new_datas['plex_url']
+    datas['plex_token'] = new_datas['plex_token']
+    datas['discogs_token'] = new_datas['discogs_token']
+    new_datas.pop('plex_url', None)
+    new_datas.pop('plex_token', None)
+    new_datas.pop('discogs_token', None)
+    datas['library'] = []
+    for lib in new_datas:
+        if lib[:3] == 'lib':
+            lib_name = lib[4:]
+            lib = {
+                'name': lib_name,
+                'path': new_datas['path_' + lib_name]
+            }
+            datas['library'].append(lib)
     with open(location_config, "w") as outfile:
         json.dump(datas, outfile, indent=4)
 
@@ -172,3 +186,29 @@ def read_config(location_config, key):
         if key in datas:
             return datas[key]
         return None
+
+
+def read_config_all(location_config):
+    """
+    Lis le fichier de configuration et retourne son contenu
+    :param location_config : Lien d'accès au fichier de config
+    :return: Contenu du fichier de configuration
+    """
+    with open(location_config) as outfile:
+        datas = json.load(outfile)
+        return datas
+
+
+def list_music_library(plex):
+    """
+    Recherche de toutes les librairies de musique disponible sur Plex
+    :param plex : Objet de connection Plex
+    :return: Liste des nom des librairies musique
+    """
+    music_section = []
+    sections = plex.library.sections()
+    for section in sections:
+        if section.CONTENT_TYPE == "audio":
+            music_section.append(section.title)
+    # print(music_section)
+    return music_section

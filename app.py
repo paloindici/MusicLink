@@ -23,6 +23,7 @@ discogs_error = False
 PLEX_TOKEN = tools.read_config(location_config, 'plex_token')
 BASE_URL_PLEX = tools.read_config(location_config, 'plex_url')
 DISCOGS_TOKEN = tools.read_config(location_config, 'discogs_token')
+LIBRARY = tools.read_config(location_config, 'library')
 
 LIBRARY_NAME = os.getenv('LIBRARY_NAME')
 DEBUG = os.getenv('DEBUG', '0')
@@ -52,7 +53,7 @@ thread_downloader = thread_downloader.Thread_main_downloader(1, "Main-dl", locat
 @app.route('/')
 def index():
     if not tools.verify_config(location_config) or plex_error or discogs_error:
-        return render_template('demarrage.html', datas=tools.read_config_content(location_config))
+        return render_template('demarrage.html', datas=tools.read_config_all(location_config))
     if 'token' in session:
         user = MyPlexAccount(token=session['token']).username
         is_admin = tools.is_admin(plex, user)
@@ -67,7 +68,7 @@ def index():
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     if not tools.verify_config(location_config) or plex_error or discogs_error:
-        return render_template('demarrage.html', datas=tools.read_config_content(location_config))
+        return render_template('demarrage.html', datas=tools.read_config_all(location_config))
     error = None
     if request.method == 'POST':
         userEmail = request.form['email']
@@ -96,7 +97,7 @@ def signin():
 @app.route('/signout')
 def signout():
     if not tools.verify_config(location_config) or plex_error or discogs_error:
-        return render_template('demarrage.html', datas=tools.read_config_content(location_config))
+        return render_template('demarrage.html', datas=tools.read_config_all(location_config))
     session.clear()
     return redirect(url_for('signin'))
 
@@ -104,18 +105,49 @@ def signout():
 @app.route('/settings', methods=['GET'])
 def settings():
     if not tools.verify_config(location_config) or plex_error or discogs_error:
-        return render_template('demarrage.html', datas=tools.read_config_content(location_config))
+        return render_template('demarrage.html', datas=tools.read_config_all(location_config))
     if 'token' in session:
         user = MyPlexAccount(token=session['token']).username
         is_admin = tools.is_admin(plex, user)
+        if not is_admin:
+            return redirect(url_for('index'))
+
+        plex_lib = tools.list_music_library(plex)
+        config = tools.read_config_all(location_config)
 
         datas = {
             'plex_url': BASE_URL_PLEX,
             'plex_token': PLEX_TOKEN,
-            'discord_token': DISCOGS_TOKEN
+            'discord_token': DISCOGS_TOKEN,
+            'plex_lib': plex_lib
         }
 
+        if 'library' in config:
+            for lib in plex_lib:
+                for item in config['library']:
+                    if item['name'] == lib:
+                        datas[lib] = item['path']
+                        break
+        print(datas)
+
         return render_template('configuration.html', datas=datas, username=user, isadmin=is_admin)
+    else:
+        return redirect(url_for('signin'))
+
+
+@app.route('/valid_settings', methods=['POST'])
+def valid_settings():
+    if not tools.verify_config(location_config) or plex_error or discogs_error:
+        return render_template('demarrage.html', datas=tools.read_config_all(location_config))
+    if 'token' in session:
+        user = MyPlexAccount(token=session['token']).username
+        if not tools.is_admin(plex, user):
+            return redirect(url_for('index'))
+
+        result = request.form.to_dict()
+        tools.write_config_all(location_config, result)
+
+        return redirect(url_for('settings'))
     else:
         return redirect(url_for('signin'))
 
@@ -123,7 +155,7 @@ def settings():
 @app.route('/result/search', methods=['GET'])
 def search_result():
     if not tools.verify_config(location_config) or plex_error or discogs_error:
-        return render_template('demarrage.html', datas=tools.read_config_content(location_config))
+        return render_template('demarrage.html', datas=tools.read_config_all(location_config))
     if 'token' in session:
         user = MyPlexAccount(token=session['token']).username
         is_admin = tools.is_admin(plex, user)
@@ -143,7 +175,7 @@ def search_result():
 @app.route('/result/confirmed', methods=['POST'])
 def confirm_add():
     if not tools.verify_config(location_config) or plex_error or discogs_error:
-        return render_template('demarrage.html', datas=tools.read_config_content(location_config))
+        return render_template('demarrage.html', datas=tools.read_config_all(location_config))
     if 'token' in session:
         user = MyPlexAccount(token=session['token']).username
         is_admin = tools.is_admin(plex, user)
@@ -188,7 +220,7 @@ def writeconfig():
         return redirect(url_for('signin'))
     else:
         return render_template('demarrage.html',
-                               datas=tools.read_config_content(location_config),
+                               datas=tools.read_config_all(location_config),
                                plex_error=plex_error,
                                discogs_error=discogs_error)
 

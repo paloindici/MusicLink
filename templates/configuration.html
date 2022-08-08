@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>{% block title %} Paramètres {% endblock %}</h1>
-<form role="search" action="{{url_for('.settings')}}" method="get">
+<form role="search" action="{{url_for('.valid_settings')}}" method="post">
     <div class="accordion" id="accordionExample">
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">
@@ -18,26 +18,22 @@
 
 
                     <div class="mb-3">
-                        <label for="exampleFormControlInput1" class="form-label">URL</label>
-                        <input type="text" class="form-control" id="exampleFormControlInput1"
+                        <label for="plex_url" class="form-label">URL Plex</label>
+                        <input type="text" class="form-control" id="plex_url" name=plex_url
                                value="{{datas['plex_url']}}" required>
-                        <small id="passwordHelpBlock1" class="form-text text-muted">
-                            Modifiable uniquement depuis le fichier .env
+                        <small id="plex_url_help" class="form-text text-muted">
+                            ATTENTION: La modification erronée de cette valeur peuvent empêcher le bon fonctionnement de MusicLink !
                         </small>
                     </div>
 
                     <div class="mb-3">
-                        <label for="exampleFormControlInput1" class="form-label">Token</label>
-                        <input type="text" class="form-control" id="exampleFormControlInput2"
+                        <label for="plex_token" class="form-label">Token Plex</label>
+                        <input type="text" class="form-control" id="plex_token" name="plex_token"
                                value="{{datas['plex_token']}}" required>
-                        <small id="passwordHelpBlock2" class="form-text text-muted">
-                            Modifiable uniquement depuis le fichier .env
+                        <small id="plex_token_help" class="form-text text-muted">
+                            ATTENTION: La modification erronée de cette valeur peuvent empêcher le bon fonctionnement de MusicLink !
+                            <a href="https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/" target="_blank">Trouver votre Token Plex</a>
                         </small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="exampleFormControlInput1" class="form-label">Nom des bibliothèques</label>
-                        <input type="text" class="form-control" id="exampleFormControlInput3">
                     </div>
                 </div>
             </div>
@@ -52,9 +48,18 @@
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
                  data-bs-parent="#accordionExample">
                 <div class="accordion-body">
-                    Cette catégorie sert à faire coïncider les <strong>bibliothèques</strong> du serveur Plex
+                    Cette catégorie sert à faire coïncider les <strong>nom des bibliothèques</strong> du serveur Plex
                     avec les <strong>volumes docker</strong>
 
+                    {% for lib in datas['plex_lib'] %}
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" value="{{lib}}" aria-label="lib" id="lib_{{lib}}"
+                               name="lib_{{lib}}" readonly>
+                        <span class="input-group-text">=></span>
+                        <input type="text" class="form-control" placeholder="/volume_link" value="{{datas[lib]}}" aria-label="path"
+                               id="path_{{lib}}" name="path_{{lib}}">
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -68,15 +73,15 @@
             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
                  data-bs-parent="#accordionExample">
                 <div class="accordion-body">
-                    Cette catégorie sert à paramétrer les <strong>ressources externes</strong> si besoin.
+                    Cette catégorie sert à paramétrer les <strong>ressources externes</strong>
 
                     <div class="mb-3">
-                        <label for="exampleFormControlInput1" class="form-label">Discogs - Token API</label>
-                        <input type="text" class="form-control" id="exampleFormControlInput4"
+                        <label for="discogs_token" class="form-label">Discogs - Token</label>
+                        <input type="text" class="form-control" id="discogs_token" name="discogs_token"
                                value="{{datas['discord_token']}}" required>
-                        <small id="passwordHelpBlock4" class="form-text text-muted">
+                        <small id="discogs_token_help" class="form-text text-muted">
                             Requis pour pouvoir effectuer des recherches et des téléchargements.
-                            https://www.discogs.com/fr/settings/developers
+                            <a href="https://www.discogs.com/fr/settings/developers" target="_blank">Trouver votre Token Discogs</a>
                         </small>
                     </div>
                 </div>
@@ -84,7 +89,7 @@
         </div>
     </div>
     <button type="submit" class="btn btn-outline-primary">
-        Rechercher
+        Enregistrer
     </button>
 </form>
 
