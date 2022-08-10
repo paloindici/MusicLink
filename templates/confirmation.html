@@ -2,5 +2,18 @@
 
 {% block content %}
 <h1>{% block title %} Confirmation {% endblock %}</h1>
-<p>L'artiste {{data['artistName']}} a été ajouté à la bibliothèque Tekno sur Plex.</p>
+<div class="d-flex justify-content-center">
+    <div class="card" style="width: 18rem;">
+        <img src="{{datas['thumb']}}" class="card-img-top">
+        <div class="card-body">
+            <h5 class="card-title">{{datas['title']}}</h5>
+            <p class="card-text">Année: {{datas['year']}}</p>
+            <p class="card-text">Pays: {{datas['country']}}</p>
+            <p class="card-text">Format: {{datas['format']}}</p>
+            <a class="btn btn-outline-primary" href="https://www.discogs.com/fr{{datas['uri']}}" target="_blank"
+               role="button">Accéder au Discogs</a>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

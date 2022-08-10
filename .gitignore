@@ -9,6 +9,7 @@ database.db
 favicon.png
 favicon.psd
 config.json
+compose.yml
 
 #ide
 .idea

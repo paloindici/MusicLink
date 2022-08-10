@@ -6,20 +6,20 @@ import api_discogs
 from db import functions_db
 
 
-def view_new_added(plex, library_name):
+def view_new_added(plex, library):
     """
     Get the recently added in Plex
     :param plex: The Plex server
-    :param library_name: The list of the library name
+    :param library: The list of the library
     :return: Dictionary of albums recently added to Plex in the various libraries
     """
     recently_added = {}
-    library_name = list(library_name.split(","))
-    for library in library_name:
-        recently = plex.library.section(library).recentlyAddedAlbums(maxresults=20)
-        recently_added[library] = []
+    # library = list(library_name.split(","))
+    for lib in library:
+        recently = plex.library.section(lib['name']).recentlyAddedAlbums(maxresults=20)
+        recently_added[lib['name']] = []
         for i in recently:
-            recently_added[library].append({'title': i.title,
+            recently_added[lib['name']].append({'title': i.title,
                                             'artist': i.artist().title,
                                             'thumb': i.posterUrl,
                                             'year': i.year})
@@ -158,9 +158,11 @@ def write_config_all(location_config, new_datas):
     datas['plex_url'] = new_datas['plex_url']
     datas['plex_token'] = new_datas['plex_token']
     datas['discogs_token'] = new_datas['discogs_token']
+    datas['contact_url'] = new_datas['contact_url']
     new_datas.pop('plex_url', None)
     new_datas.pop('plex_token', None)
     new_datas.pop('discogs_token', None)
+    new_datas.pop('contact_url', None)
     datas['library'] = []
     for lib in new_datas:
         if lib[:3] == 'lib':

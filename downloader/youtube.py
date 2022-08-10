@@ -41,15 +41,16 @@ def youtube_search(arg):
     return video
 
 
-def youtube_download(folder, title, link):
+def youtube_download(path, folder, title, link):
     """
     Launch downloading song from Youtube link
+    :param path: Lien du volume docker ou l'on dois enregistrer la musique
     :param folder: Folder link for save download
     :param title: Artist name to download
     :param link: Album name to download
     :return: None
     """
-    ydl_opts['outtmpl'] = f'/music/{folder}/{title}.%%(ext)s'
+    ydl_opts['outtmpl'] = f'{path}/{folder}/{title}.%%(ext)s'
     # Lancer le téléchargement dans une boucle de maximum 10 tentative pour contrer les erreurs 403
     i = 1
     while i <= 10:

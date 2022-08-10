@@ -66,7 +66,7 @@
                                 </div>
                                 <form action="/result/confirmed" method="post">
                                     <div class="modal-body">
-                                        Sélectionner la bibliothèque correspondant à {{data['title']}}
+                                        Sélectionner la bibliothèque correspondante
                                         {% for library in library_name %}
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="songStyle"
@@ -83,10 +83,14 @@
                                         <input type="hidden" id="uri" name="uri" value="{{data['uri']}}">
                                         <input type="hidden" id="format" name="format" value="{{data['format'][0]}}">
                                         <input type="hidden" id="genre" name="genre" value="{{data['genre']}}">
+                                        <input type="hidden" id="year" name="year" value="{{data['year']}}">
+                                        <input type="hidden" id="country" name="country" value="{{data['country']}}">
                                         <input type="hidden" id="master_id" name="master_id"
                                                value="{{data['master_id']}}">
                                         <input type="hidden" id="master_url" name="master_url"
                                                value="{{data['master_url']}}">
+                                        <input type="hidden" id="thumb" name="thumb"
+                                               value="{{data['thumb']}}">
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler

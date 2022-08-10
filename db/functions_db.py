@@ -23,8 +23,8 @@ def read_db_verify_if_master_exist(conn, master_id):
     sql = """SELECT * FROM albums WHERE masterId=?"""
     cur = conn.cursor()
     cur.execute(sql, [master_id])
-
     rows = cur.fetchall()
+    cur.close()
 
     if rows:
         return rows
@@ -42,8 +42,8 @@ def read_db_verify_if_release_exist(conn, release_id):
     sql = """SELECT * FROM albums WHERE releaseId=?"""
     cur = conn.cursor()
     cur.execute(sql, [release_id])
-
     rows = cur.fetchall()
+    cur.close()
 
     if rows:
         return rows
@@ -59,8 +59,8 @@ def read_db_non_traite(conn):
     """
     cur = conn.cursor()
     cur.execute("SELECT * FROM albums WHERE lastView=0")
-
     rows = cur.fetchall()
+    cur.close()
 
     if rows:
         return rows
@@ -68,18 +68,19 @@ def read_db_non_traite(conn):
         return False
 
 
-def update_db_traite(conn, master_id):
+def update_db_traite(conn, release_id):
     """
     Update timestamp in the database when the artist's albums were processed
     :param conn: Database connection object
-    :param master_id: Master identifier
+    :param release_id: Release identifier
     :return: None
     """
-    sql = ''' UPDATE albums SET lastView = ? WHERE master_id = ?'''
-    data = (time.time(), master_id)
+    sql = ''' UPDATE albums SET lastView = ? WHERE releaseId = ?'''
+    data = [time.time(), release_id]
     cur = conn.cursor()
     cur.execute(sql, data)
     conn.commit()
+    cur.close()
 
 
 def write_db_new_item(conn, title, release_id, release_resource_url, release_uri, format, genre, master_id, master_url, songStyle):
@@ -102,3 +103,4 @@ def write_db_new_item(conn, title, release_id, release_resource_url, release_uri
     cur = conn.cursor()
     cur.execute(sql, data)
     conn.commit()
+    cur.close()

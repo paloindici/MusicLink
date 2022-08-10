@@ -16,27 +16,29 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 # Config generale de musiclink
 location_config = tools.gestion_fichier_config()
 
-plex_error = False
-discogs_error = False
+# Memoire pour les erreur au démarrage de plex et discogs
+plex_error = True
+discogs_error = True
 
 # Config des API - services externes
 PLEX_TOKEN = tools.read_config(location_config, 'plex_token')
 BASE_URL_PLEX = tools.read_config(location_config, 'plex_url')
 DISCOGS_TOKEN = tools.read_config(location_config, 'discogs_token')
 LIBRARY = tools.read_config(location_config, 'library')
+CONTACT_URL = tools.read_config(location_config, 'contact_url')
+FLASK_ENV = os.getenv('FLASK_ENV', 'production')
 
-LIBRARY_NAME = os.getenv('LIBRARY_NAME')
-DEBUG = os.getenv('DEBUG', '0')
 try:
     plex = PlexServer(BASE_URL_PLEX, PLEX_TOKEN)
+    plex_error = False
 except:
     plex_error = True
 
 try:
     api_discogs.search('nirvanna', 'CD', DISCOGS_TOKEN)
+    discogs_error = False
 except:
     discogs_error = True
-
 
 # Création de la DB au démarrage si inexistante
 location_db = init_db.gestion_fichier_database()
@@ -46,7 +48,9 @@ if location_db is None:
     exit()
 
 # Création d'une tache parallèle pour la gestion des téléchargements
-thread_downloader = thread_downloader.Thread_main_downloader(1, "Main-dl", location_db, DISCOGS_TOKEN)
+thread_downloader = thread_downloader.Thread_main_downloader(1, "Main-dl", location_db, DISCOGS_TOKEN, location_config)
+if not thread_downloader.is_alive() and FLASK_ENV != 'development' and not plex_error and not discogs_error:
+    thread_downloader.start()
 
 
 # Page d'accueil de MusicLink
@@ -58,9 +62,9 @@ def index():
         user = MyPlexAccount(token=session['token']).username
         is_admin = tools.is_admin(plex, user)
 
-        recently_added = tools.view_new_added(plex, LIBRARY_NAME)
+        recently_added = tools.view_new_added(plex, LIBRARY)
 
-        return render_template('index.html', data=recently_added, username=user, isadmin=is_admin)
+        return render_template('index.html', data=recently_added, username=user, isadmin=is_admin, contact=CONTACT_URL)
     else:
         return redirect(url_for('signin'))
 
@@ -119,8 +123,10 @@ def settings():
             'plex_url': BASE_URL_PLEX,
             'plex_token': PLEX_TOKEN,
             'discord_token': DISCOGS_TOKEN,
-            'plex_lib': plex_lib
+            'plex_lib': plex_lib,
         }
+        if 'contact_url' in config:
+            datas['contact_url'] = config['contact_url']
 
         if 'library' in config:
             for lib in plex_lib:
@@ -130,7 +136,7 @@ def settings():
                         break
         print(datas)
 
-        return render_template('configuration.html', datas=datas, username=user, isadmin=is_admin)
+        return render_template('configuration.html', datas=datas, username=user, isadmin=is_admin, contact=CONTACT_URL)
     else:
         return redirect(url_for('signin'))
 
@@ -145,9 +151,14 @@ def valid_settings():
             return redirect(url_for('index'))
 
         result = request.form.to_dict()
+        global PLEX_TOKEN, BASE_URL_PLEX, DISCOGS_TOKEN, CONTACT_URL
+        PLEX_TOKEN = result['plex_token']
+        BASE_URL_PLEX = result['plex_url']
+        DISCOGS_TOKEN = result['discogs_token']
+        CONTACT_URL = result['contact_url']
         tools.write_config_all(location_config, result)
 
-        return redirect(url_for('settings'))
+        return redirect(url_for('index'))
     else:
         return redirect(url_for('signin'))
 
@@ -162,11 +173,14 @@ def search_result():
         result = request.args
         final_list = tools.search_result(result, location_db, DISCOGS_TOKEN)
         number = len(final_list)
-        library_name = list(LIBRARY_NAME.split(","))
+        # library_name = list(LIBRARY_NAME.split(","))
+        library_name = []
+        for lib in LIBRARY:
+            library_name.append(lib['name'])
 
         # print(final_list)
         return render_template("recherche.html", datas=final_list, number=number, library_name=library_name,
-                               username=user, isadmin=is_admin)
+                               username=user, isadmin=is_admin, contact=CONTACT_URL)
     else:
         return redirect(url_for('signin'))
 
@@ -181,13 +195,12 @@ def confirm_add():
         is_admin = tools.is_admin(plex, user)
         result = request.form.to_dict()
         # print(result)
-        functions_db.write_db_new_item(functions_db.get_db_connection(location_db), result['title'], result['id'],
-                                       result['resource_url'], result['uri'], result['format'], result['genre'],
-                                       result['master_id'], result['master_url'], result['songStyle'])
-        if DEBUG != '1' and DEBUG != 'true' and DEBUG is not True:
-            thread_downloader.start()
+        if FLASK_ENV != 'development':
+            functions_db.write_db_new_item(functions_db.get_db_connection(location_db), result['title'], result['id'],
+                                           result['resource_url'], result['uri'], result['format'], result['genre'],
+                                           result['master_id'], result['master_url'], result['songStyle'])
 
-        return render_template('confirmation.html', data=result, username=user, isadmin=is_admin)
+        return render_template('confirmation.html', datas=result, username=user, isadmin=is_admin, contact=CONTACT_URL)
     else:
         return redirect(url_for('signin'))
 
