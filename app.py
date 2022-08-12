@@ -62,7 +62,7 @@ def index():
         user = MyPlexAccount(token=session['token']).username
         is_admin = tools.is_admin(plex, user)
 
-        recently_added = tools.view_new_added(plex, LIBRARY)
+        recently_added = tools.view_new_added(plex, tools.list_music_library(plex))
 
         return render_template('index.html', data=recently_added, username=user, isadmin=is_admin, contact=CONTACT_URL)
     else:
@@ -151,12 +151,15 @@ def valid_settings():
             return redirect(url_for('index'))
 
         result = request.form.to_dict()
-        global PLEX_TOKEN, BASE_URL_PLEX, DISCOGS_TOKEN, CONTACT_URL
+        global PLEX_TOKEN, BASE_URL_PLEX, DISCOGS_TOKEN, CONTACT_URL, LIBRARY
         PLEX_TOKEN = result['plex_token']
         BASE_URL_PLEX = result['plex_url']
         DISCOGS_TOKEN = result['discogs_token']
         CONTACT_URL = result['contact_url']
+
         tools.write_config_all(location_config, result)
+
+        LIBRARY = tools.read_config(location_config, 'library')
 
         return redirect(url_for('index'))
     else:
@@ -174,9 +177,15 @@ def search_result():
         final_list = tools.search_result(result, location_db, DISCOGS_TOKEN)
         number = len(final_list)
         # library_name = list(LIBRARY_NAME.split(","))
-        library_name = []
-        for lib in LIBRARY:
-            library_name.append(lib['name'])
+        if LIBRARY is not None:
+            library_name = []
+            for lib in LIBRARY:
+                if lib['path'] is not None and lib['path'] != "":
+                    library_name.append(lib['name'])
+            if not library_name:
+                library_name = None
+        else:
+            library_name = None
 
         # print(final_list)
         return render_template("recherche.html", datas=final_list, number=number, library_name=library_name,

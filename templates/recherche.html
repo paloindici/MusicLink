@@ -50,6 +50,7 @@
                         </div>
                     </div>
                     {% else %}
+                    {% if library_name is not none %}
                     <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal"
                             data-bs-target="#exampleModal">
                         Ajouter sur Plex
@@ -101,6 +102,14 @@
                             </div>
                         </div>
                     </div>
+                    {% else %}
+                    <span class="w-100" tabindex="0" data-toggle="tooltip" title="Aucune bibliothèque Plex configurée">
+                        <button type="button" class="btn btn-primary w-100" style="pointer-events: none;"
+                            data-bs-toggle="modal" data-bs-target="#exampleModal" DISABLED>
+                            Ajouter sur Plex
+                        </button>
+                    </span>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>
@@ -111,6 +120,10 @@
 
 <!--TODO create service -->
 <script>
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+
 function getHistory(index) {
     var classList = $(`#overview-${index}`).attr("class").split(/\s+/);
     console.log(classList);
@@ -123,6 +136,12 @@ function getHistory(index) {
         $(`#full-history-${index}`).html("en savoir plus");
     }
 }
+
+
+
+
+
+
 
 </script>
 {% endblock %}

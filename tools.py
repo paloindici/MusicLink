@@ -15,16 +15,19 @@ def view_new_added(plex, library):
     """
     recently_added = {}
     # library = list(library_name.split(","))
-    for lib in library:
-        recently = plex.library.section(lib['name']).recentlyAddedAlbums(maxresults=20)
-        recently_added[lib['name']] = []
-        for i in recently:
-            recently_added[lib['name']].append({'title': i.title,
+    if library is not None:
+        for lib in library:
+            recently = plex.library.section(lib).recentlyAddedAlbums(maxresults=20)
+            recently_added[lib] = []
+            for i in recently:
+                recently_added[lib].append({'title': i.title,
                                             'artist': i.artist().title,
                                             'thumb': i.posterUrl,
                                             'year': i.year})
-    # print(recently_added)
-    return recently_added
+        # print(recently_added)
+        return recently_added
+    else:
+        return
 
 
 def search_result(form_search, location_db, discogs_token):
@@ -89,6 +92,8 @@ def gestion_fichier_config():
     location_docker = "/data/config.json"
     location_windows = location_docker[6:]
 
+    print('Lancement gestion fichier config.json')
+
     if not exists(location_docker) and not exists(location_windows):
         print(f"Fichier de config - Tentative de création sur le volume Docker...")
         try:
@@ -119,8 +124,10 @@ def gestion_fichier_config():
             print(f"Impossible de créer ou d'accéder a un fichier de config")
             return None
     elif exists(location_docker):
+        print('fichier present sur docker')
         return location_docker
     else:
+        print('fichier present sur windows')
         return location_windows
 
 
