@@ -2,105 +2,179 @@
 
 {% block content %}
 <h1>{% block title %} Paramètres {% endblock %}</h1>
-<form role="search" action="{{url_for('.valid_settings')}}" method="post">
-    <div class="accordion" id="accordionExample">
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingOne">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
-                        aria-expanded="true" aria-controls="collapseOne">
-                    Serveur Plex
-                </button>
-            </h2>
-            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
-                 data-bs-parent="#accordionExample">
-                <div class="accordion-body">
-                    Cette catégorie sert à paramétrer le <strong>serveur Plex</strong>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-6 offset-3">
+            <form role="search" action="{{url_for('.valid_settings')}}" method="post">
 
+                <div class="accordion" id="accordionExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseOne"
+                                    aria-expanded="true" aria-controls="collapseOne">
+                                Serveur Plex
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                             data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                Cette catégorie sert à paramétrer le <strong>serveur Plex</strong>
 
-                    <div class="mb-3">
-                        <label for="plex_url" class="form-label">URL Plex</label>
-                        <input type="text" class="form-control" id="plex_url" name=plex_url
-                               value="{{datas['plex_url']}}" required>
-                        <small id="plex_url_help" class="form-text text-muted">
-                            ATTENTION: La modification erronée de cette valeur peuvent empêcher le bon fonctionnement de MusicLink !
-                        </small>
+                                <div class="mb-3">
+                                    <label for="plex_url" class="form-label">URL Plex</label>
+                                    <input type="text" class="form-control" id="plex_url" name=plex_url
+                                           value="{{datas['plex_url']}}" required>
+                                    <small id="plex_url_help" class="form-text text-muted">
+                                        ATTENTION: La modification erronée de cette valeur peuvent empêcher le bon
+                                        fonctionnement de
+                                        MusicLink !
+                                    </small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="plex_token" class="form-label">Token Plex</label>
+                                    <input type="text" class="form-control" id="plex_token" name="plex_token"
+                                           value="{{datas['plex_token']}}" required>
+                                    <small id="plex_token_help" class="form-text text-muted">
+                                        ATTENTION: La modification erronée de cette valeur peuvent empêcher le bon
+                                        fonctionnement de
+                                        MusicLink !
+                                        <a href="https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/"
+                                           target="_blank">Trouver votre Token Plex</a>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Configuration des volumes
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                             data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                Cette catégorie sert à faire coïncider les <strong>nom des bibliothèques</strong> du
+                                serveur
+                                Plex
+                                avec les <strong>volumes docker</strong>
 
-                    <div class="mb-3">
-                        <label for="plex_token" class="form-label">Token Plex</label>
-                        <input type="text" class="form-control" id="plex_token" name="plex_token"
-                               value="{{datas['plex_token']}}" required>
-                        <small id="plex_token_help" class="form-text text-muted">
-                            ATTENTION: La modification erronée de cette valeur peuvent empêcher le bon fonctionnement de MusicLink !
-                            <a href="https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/" target="_blank">Trouver votre Token Plex</a>
-                        </small>
+                                {% for lib in datas['plex_lib'] %}
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" value="{{lib}}" aria-label="lib"
+                                           id="lib_{{lib}}"
+                                           name="lib_{{lib}}" readonly>
+                                    <span class="input-group-text">=></span>
+                                    <input type="text" class="form-control" placeholder="/volume_link"
+                                           value="{{datas[lib]}}"
+                                           aria-label="path"
+                                           id="path_{{lib}}" name="path_{{lib}}">
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Accès aux ressources externes
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                             data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                Cette catégorie sert à paramétrer les <strong>ressources externes</strong>
+
+                                <div class="mb-3">
+                                    <label for="discogs_token" class="form-label">Discogs - Token</label>
+                                    <input type="text" class="form-control" id="discogs_token" name="discogs_token"
+                                           value="{{datas['discord_token']}}" required>
+                                    <small id="discogs_token_help" class="form-text text-muted">
+                                        Requis pour pouvoir effectuer des recherches et des téléchargements.
+                                        <a href="https://www.discogs.com/fr/settings/developers" target="_blank">Trouver
+                                            votre Token Discogs</a>
+                                    </small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="contact_url" class="form-label">Lien du menu Contact</label>
+                                    <input type="text" class="form-control" id="contact_url" name="contact_url"
+                                           value="{{datas['contact_url']}}">
+                                    <small id="contact_url_help" class="form-text text-muted">
+                                        Entrer ici l'URL de redirection pour le bouton Contact dans la barre de menu. Si
+                                        ce
+                                        champ
+                                        est vide, le bouton n'apparaitra pas.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingFour">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                Webhook Discord
+                            </button>
+                        </h2>
+                        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour"
+                             data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                Cette catégorie sert à paramétrer les <strong>webhook Discord</strong>
+
+                                <div class="mb-3">
+                                    <label for="webhook_url" class="form-label">URL du Webhook</label>
+                                    <input type="text" class="form-control" id="webhook_url" name="webhook_url"
+                                           value="{{datas['webhook_url']}}"
+                                           placeholder="https://discord.com/api/webhooks/...">
+                                    <small id="webhook_url_help" class="form-text text-muted">
+                                        Pour trouver l'URL: Paramètre du serveur Discord, Intégrations, Webhooks.
+                                        Ensuite nouveau Webhook. Remplir les champs et copier l'URL.
+                                    </small>
+                                </div>
+
+
+                                <div class="form-check form-switch">
+                                    {% if datas['webhook_add'] %}
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                            name="webhook_add" checked>
+                                    {% else %}
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                            name="webhook_add">
+                                    {% endif %}
+                                    <label class="form-check-label">Envoyer au clic sur
+                                        ajouter</label>
+                                </div>
+
+                                <div class="form-check form-switch">
+                                    {% if datas['webhook_added'] %}
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                           name="webhook_added" checked>
+                                    {% else %}
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                           name="webhook_added">
+                                    {% endif %}
+                                    <label class="form-check-label">Envoyer une fois le
+                                        téléchargement terminé</label>
+                                </div>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingTwo">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    Configuration des volumes
-                </button>
-            </h2>
-            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
-                 data-bs-parent="#accordionExample">
-                <div class="accordion-body">
-                    Cette catégorie sert à faire coïncider les <strong>nom des bibliothèques</strong> du serveur Plex
-                    avec les <strong>volumes docker</strong>
-
-                    {% for lib in datas['plex_lib'] %}
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" value="{{lib}}" aria-label="lib" id="lib_{{lib}}"
-                               name="lib_{{lib}}" readonly>
-                        <span class="input-group-text">=></span>
-                        <input type="text" class="form-control" placeholder="/volume_link" value="{{datas[lib]}}" aria-label="path"
-                               id="path_{{lib}}" name="path_{{lib}}">
-                    </div>
-                    {% endfor %}
+                <div class="text-center">
+                    <button type="submit" class="btn btn-outline-primary mt-2">
+                        Enregistrer
+                    </button>
                 </div>
-            </div>
-        </div>
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingThree">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                    Accès aux ressources externes
-                </button>
-            </h2>
-            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
-                 data-bs-parent="#accordionExample">
-                <div class="accordion-body">
-                    Cette catégorie sert à paramétrer les <strong>ressources externes</strong>
-
-                    <div class="mb-3">
-                        <label for="discogs_token" class="form-label">Discogs - Token</label>
-                        <input type="text" class="form-control" id="discogs_token" name="discogs_token"
-                               value="{{datas['discord_token']}}" required>
-                        <small id="discogs_token_help" class="form-text text-muted">
-                            Requis pour pouvoir effectuer des recherches et des téléchargements.
-                            <a href="https://www.discogs.com/fr/settings/developers" target="_blank">Trouver votre Token Discogs</a>
-                        </small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="contact_url" class="form-label">Lien du menu Contact</label>
-                        <input type="text" class="form-control" id="contact_url" name="contact_url"
-                               value="{{datas['contact_url']}}">
-                        <small id="contact_url_help" class="form-text text-muted">
-                            Entrer ici l'URL de redirection pour le bouton Contact dans la barre de menu. Si ce champ est vide, le bouton n'apparaitra pas.
-                        </small>
-                    </div>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
-    <button type="submit" class="btn btn-outline-primary">
-        Enregistrer
-    </button>
-</form>
+</div>
 
 
 {% endblock %}

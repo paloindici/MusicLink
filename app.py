@@ -26,6 +26,9 @@ BASE_URL_PLEX = tools.read_config(location_config, 'plex_url')
 DISCOGS_TOKEN = tools.read_config(location_config, 'discogs_token')
 LIBRARY = tools.read_config(location_config, 'library')
 CONTACT_URL = tools.read_config(location_config, 'contact_url')
+WEBHOOK_URL = tools.read_config(location_config, 'webhook_url')
+WEBHOOK_ADD = tools.read_config(location_config, 'webhook_add')
+WEBHOOK_ADDED = tools.read_config(location_config, 'webhook_added')
 FLASK_ENV = os.getenv('FLASK_ENV', 'production')
 
 try:
@@ -125,6 +128,16 @@ def settings():
             'discord_token': DISCOGS_TOKEN,
             'plex_lib': plex_lib,
         }
+
+        if WEBHOOK_URL is not None:
+            datas['webhook_url'] = WEBHOOK_URL
+
+        if WEBHOOK_ADD is not None:
+            datas['webhook_add'] = WEBHOOK_ADD
+
+        if WEBHOOK_ADDED is not None:
+            datas['webhook_added'] = WEBHOOK_ADDED
+
         if 'contact_url' in config:
             datas['contact_url'] = config['contact_url']
 
@@ -134,7 +147,7 @@ def settings():
                     if item['name'] == lib:
                         datas[lib] = item['path']
                         break
-        print(datas)
+        # print(datas)
 
         return render_template('configuration.html', datas=datas, username=user, isadmin=is_admin, contact=CONTACT_URL)
     else:
@@ -151,11 +164,15 @@ def valid_settings():
             return redirect(url_for('index'))
 
         result = request.form.to_dict()
-        global PLEX_TOKEN, BASE_URL_PLEX, DISCOGS_TOKEN, CONTACT_URL, LIBRARY
+        # print(result)
+        global PLEX_TOKEN, BASE_URL_PLEX, DISCOGS_TOKEN, CONTACT_URL, LIBRARY, WEBHOOK_URL, WEBHOOK_ADD, WEBHOOK_ADDED
         PLEX_TOKEN = result['plex_token']
         BASE_URL_PLEX = result['plex_url']
         DISCOGS_TOKEN = result['discogs_token']
         CONTACT_URL = result['contact_url']
+        WEBHOOK_URL = result['webhook_url']
+        WEBHOOK_ADD = "webhook_add" in request.form
+        WEBHOOK_ADDED = "webhook_added" in request.form
 
         tools.write_config_all(location_config, result)
 
@@ -208,6 +225,7 @@ def confirm_add():
             functions_db.write_db_new_item(functions_db.get_db_connection(location_db), result['title'], result['id'],
                                            result['resource_url'], result['uri'], result['format'], result['genre'],
                                            result['master_id'], result['master_url'], result['songStyle'])
+            tools.webhook_send(WEBHOOK_URL, WEBHOOK_ADD, result, user)
 
         return render_template('confirmation.html', datas=result, username=user, isadmin=is_admin, contact=CONTACT_URL)
     else:
@@ -219,7 +237,7 @@ def confirm_add():
 def writeconfig():
     global plex, plex_error, discogs_error, PLEX_TOKEN, BASE_URL_PLEX, DISCOGS_TOKEN
     result = request.form.to_dict()
-    print(result)
+    # print(result)
     tools.write_config(location_config, result)
 
     PLEX_TOKEN = result['plex_token']

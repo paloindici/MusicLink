@@ -52,16 +52,16 @@
                     {% else %}
                     {% if library_name is not none %}
                     <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
+                            data-bs-target="#modal{{data['id']}}">
                         Ajouter sur Plex
                     </button>
                     <!-- Modal -->
-                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    <div class="modal fade" id="modal{{data['id']}}" tabindex="-1" aria-labelledby="modalLabel{{data['id']}}"
                          aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Sélection de la bibliothèque</h5>
+                                    <h5 class="modal-title" id="modalLabel{{data['id']}}">Sélection de la bibliothèque</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                 </div>
@@ -83,7 +83,7 @@
                                                value="{{data['resource_url']}}">
                                         <input type="hidden" id="uri" name="uri" value="{{data['uri']}}">
                                         <input type="hidden" id="format" name="format" value="{{data['format'][0]}}">
-                                        <input type="hidden" id="genre" name="genre" value="{{data['genre']}}">
+                                        <input type="hidden" id="genre" name="genre" value="{{data['genre'][0]}}">
                                         <input type="hidden" id="year" name="year" value="{{data['year']}}">
                                         <input type="hidden" id="country" name="country" value="{{data['country']}}">
                                         <input type="hidden" id="master_id" name="master_id"
@@ -104,8 +104,7 @@
                     </div>
                     {% else %}
                     <span class="w-100" tabindex="0" data-toggle="tooltip" title="Aucune bibliothèque Plex configurée">
-                        <button type="button" class="btn btn-primary w-100" style="pointer-events: none;"
-                            data-bs-toggle="modal" data-bs-target="#exampleModal" DISABLED>
+                        <button type="button" class="btn btn-primary w-100" style="pointer-events: none;" DISABLED>
                             Ajouter sur Plex
                         </button>
                     </span>

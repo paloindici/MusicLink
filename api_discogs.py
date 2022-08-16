@@ -25,7 +25,7 @@ def getApi(url, discogs_token):
     }
 
     response = requests.get(url, headers=headers, timeout=10)
-    print(f"{url}: {response.status_code}")
+    # print(f"{url}: {response.status_code}")
 
     if response.status_code == 200:
         result = json.loads(response.text)

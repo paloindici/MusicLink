@@ -8,7 +8,7 @@ CREATE TABLE "albums" (
 	"releaseUri" TEXT NOT NULL,
 	"format" TEXT NOT NULL,
 	"genre" TEXT NOT NULL,
-	"masterId" TEXT NOT NULL UNIQUE,
+	"masterId" TEXT NOT NULL,
 	"masterUrl" TEXT NOT NULL,
 	"lastView" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	"songStyle" TEXT NOT NULL,

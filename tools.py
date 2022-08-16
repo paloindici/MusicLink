@@ -4,6 +4,7 @@ from os.path import exists
 
 import api_discogs
 from db import functions_db
+from discord_webhook import DiscordWebhook, DiscordEmbed
 
 
 def view_new_added(plex, library):
@@ -166,10 +167,22 @@ def write_config_all(location_config, new_datas):
     datas['plex_token'] = new_datas['plex_token']
     datas['discogs_token'] = new_datas['discogs_token']
     datas['contact_url'] = new_datas['contact_url']
+    datas['webhook_url'] = new_datas['webhook_url']
+    if 'webhook_add' in new_datas:
+        datas['webhook_add'] = True
+    else:
+        datas['webhook_add'] = False
+    if 'webhook_added' in new_datas:
+        datas['webhook_added'] = True
+    else:
+        datas['webhook_added'] = False
     new_datas.pop('plex_url', None)
     new_datas.pop('plex_token', None)
     new_datas.pop('discogs_token', None)
     new_datas.pop('contact_url', None)
+    new_datas.pop('webhook_url', None)
+    new_datas.pop('webhook_add', None)
+    new_datas.pop('webhook_added', None)
     datas['library'] = []
     for lib in new_datas:
         if lib[:3] == 'lib':
@@ -221,3 +234,47 @@ def list_music_library(plex):
             music_section.append(section.title)
     # print(music_section)
     return music_section
+
+
+def webhook_send(url, stat, datas, username=None):
+    """
+    Envoi un embed sur discord pour chaque nouveau contenu demandé
+    :param url : URL du webhook Discord
+    :param stat : Boolean si la fonction est activée ou pas
+    :param datas : Dictionnaire des informations sur le contenu demandé
+    :param username : Pseudo de la personne qui a fait la demande
+    """
+    if stat:
+        if url is not None and url != "":
+            try:
+                webhook = DiscordWebhook(url=url)
+
+                if username is not None:
+                    description = "Un nouveau contenu audio a été demandé !"
+                else:
+                    description = "Un nouveau contenu est disponible"
+
+                embed = DiscordEmbed(title=f"{datas['title']}",
+                                     url=f"https://www.discogs.com/fr{datas['uri']}",
+                                     description=f"{description}",
+                                     color="9c59b6")
+                embed.set_footer(text="Powered by: MusicLink")
+                embed.set_timestamp()
+                if 'year' in datas and datas['year'] != '':
+                    embed.add_embed_field(name="Année", value=f"{datas['year']}")
+                if 'format' in datas and datas['format'] != '':
+                    embed.add_embed_field(name="Support", value=f"{datas['format']}")
+                if 'genre' in datas and datas['genre'] != '':
+                    embed.add_embed_field(name="Genre", value=f"{datas['genre']}")
+                if 'thumb' in datas and datas['thumb'] != '':
+                    embed.set_thumbnail(url=f"{datas['thumb']}")
+                if username is not None:
+                    embed.add_embed_field(name="Demandé par", value=f"{username}", inline=False)
+
+                webhook.add_embed(embed)
+                response = webhook.execute()
+                return
+            except:
+                return
+        return
+    return

@@ -43,7 +43,7 @@ class Thread_main_downloader(threading.Thread):
                                 # Download with direct URL
                                 title = f"{track['position']} - {track['title']}"
                                 succes_dl = youtube.youtube_download(path, folder, title, release['videos'][i]['uri'])
-                                print(f"succès: {succes_dl}")
+                                # print(f"succès: {succes_dl}")
                             else:
                                 # Search on youtube
                                 title = f"{track['position']} - {track['title']}"
@@ -75,3 +75,17 @@ class Thread_main_downloader(threading.Thread):
 
                         # VALID TOTAL DOWNLOAD
                         functions_db.update_db_traite(functions_db.get_db_connection(self.chemin_db), item['releaseId'])
+
+                        # WEBHOOK DISCORD
+                        webhook_url = tools.read_config(self.location_config, 'webhook_url')
+                        webhook_enable = tools.read_config(self.location_config, 'webhook_added')
+                        if webhook_url is not None and webhook_enable is not None:
+                            datas = {
+                                'title': item['title'],
+                                'uri': item['releaseUri'],
+                                'year': release['year'],
+                                'format': item['format'],
+                                'genre': item['genre'],
+                                'thumb': release['thumb'],
+                            }
+                            tools.webhook_send(webhook_url, webhook_enable, datas)

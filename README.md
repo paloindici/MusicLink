@@ -58,6 +58,7 @@ If you have multiple audio libraries on Plex, you can create one volume per libr
 * discogs-client v2.3.0
 * youtube-dl v2021.12.17
 * eyed3 v0.9.6
+* discord-webhook v0.16.3
 
 ## Find Us
 
