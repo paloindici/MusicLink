@@ -35,10 +35,19 @@
                 {% endif %}
                 <div class="card-body">
                     <h5 class="card-title">{{data['title']}}</h5>
-                    <p class="card-text">Année: {{data['year']}}</p>
-                    <p class="card-text">Pays: {{data['country']}}</p>
-                    <p class="card-text">Format: {{data['format'][0]}}</p>
-                    <a class="btn btn-outline-primary" href="https://www.discogs.com/fr{{data['uri']}}" target="_blank"
+                    <p class="card-text mb-0 mt-1">Année: {{data['year']}}</p>
+                    <p class="card-text mb-0 mt-1">Label:</p>
+                    {% for lab in data['label'] %}
+                        <span class="badge rounded-pill text-bg-secondary">{{lab}}</span>
+                    {% endfor %}
+                    <p class="card-text mb-0 mt-1">Genre:</p>
+                    {% for gen in data['genre'] %}
+                        <span class="badge rounded-pill text-bg-secondary">{{gen}}</span>
+                    {% endfor %}
+                    <p class="card-text mb-0 mt-1">Communauté:</p>
+                    <span class="badge rounded-pill text-bg-secondary">{{data['community']['want']}} le veux</span>
+                    <span class="badge rounded-pill text-bg-secondary">{{data['community']['have']}} l'a déjà</span>
+                    <a class="btn btn-outline-primary mt-3" href="https://www.discogs.com/fr{{data['uri']}}" target="_blank"
                        role="button">Accéder au Discogs</a>
                 </div>
                 <div class="card-footer bg-transparent border-dark">

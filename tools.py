@@ -15,7 +15,6 @@ def view_new_added(plex, library):
     :return: Dictionary of albums recently added to Plex in the various libraries
     """
     recently_added = {}
-    # library = list(library_name.split(","))
     if library is not None:
         for lib in library:
             recently = plex.library.section(lib).recentlyAddedAlbums(maxresults=20)
@@ -25,7 +24,6 @@ def view_new_added(plex, library):
                                             'artist': i.artist().title,
                                             'thumb': i.posterUrl,
                                             'year': i.year})
-        # print(recently_added)
         return recently_added
     else:
         return
@@ -54,6 +52,13 @@ def search_result(form_search, location_db, discogs_token):
             final_list.append(album)
             if album['master_id'] != 0:
                 list_master_id.append(album['master_id'])
+    response = api_discogs.search(form_search['nom'], format[int(form_search['format'])], discogs_token, type='label')
+    response_result = response['results']
+    for album in response_result:
+        if not album['master_id'] in list_master_id:
+            final_list.append(album)
+            if album['master_id'] != 0:
+                list_master_id.append(album['master_id'])
 
     # Analyse de la DB pour savoir si déjà présent dans les demandes
     for item in final_list:
@@ -67,6 +72,49 @@ def search_result(form_search, location_db, discogs_token):
             item['exist'] = True
         else:
             item['exist'] = False
+
+    return final_list
+
+
+def indexage_search_result(name, location_db, discogs_token):
+    """
+    Search the result on discogs
+    :param name: Name of the release
+    :param location_db: Location of the database
+    :param discogs_token: Token Discogs
+    :return: List of the response from discogs
+    """
+    list_master_id = []
+    final_list = []
+
+    response = api_discogs.search(name, 'CD', discogs_token)
+    response_result = response['results']
+    for album in response_result:
+        if not album['master_id'] in list_master_id:
+            final_list.append(album)
+            if album['master_id'] != 0:
+                list_master_id.append(album['master_id'])
+    response = api_discogs.search(name, 'CD', discogs_token, type='label')
+    response_result = response['results']
+    for album in response_result:
+        if not album['master_id'] in list_master_id:
+            final_list.append(album)
+            if album['master_id'] != 0:
+                list_master_id.append(album['master_id'])
+    response = api_discogs.search(name, 'Vinyl', discogs_token)
+    response_result = response['results']
+    for album in response_result:
+        if not album['master_id'] in list_master_id:
+            final_list.append(album)
+            if album['master_id'] != 0:
+                list_master_id.append(album['master_id'])
+    response = api_discogs.search(name, 'Vinyl', discogs_token, type='label')
+    response_result = response['results']
+    for album in response_result:
+        if not album['master_id'] in list_master_id:
+            final_list.append(album)
+            if album['master_id'] != 0:
+                list_master_id.append(album['master_id'])
 
     return final_list
 

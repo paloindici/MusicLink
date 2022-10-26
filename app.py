@@ -193,7 +193,6 @@ def search_result():
         result = request.args
         final_list = tools.search_result(result, location_db, DISCOGS_TOKEN)
         number = len(final_list)
-        # library_name = list(LIBRARY_NAME.split(","))
         if LIBRARY is not None:
             library_name = []
             for lib in LIBRARY:
@@ -204,7 +203,6 @@ def search_result():
         else:
             library_name = None
 
-        # print(final_list)
         return render_template("recherche.html", datas=final_list, number=number, library_name=library_name,
                                username=user, isadmin=is_admin, contact=CONTACT_URL)
     else:
@@ -220,7 +218,6 @@ def confirm_add():
         user = MyPlexAccount(token=session['token']).username
         is_admin = tools.is_admin(plex, user)
         result = request.form.to_dict()
-        # print(result)
         if FLASK_ENV != 'development':
             functions_db.write_db_new_item(functions_db.get_db_connection(location_db), result['title'], result['id'],
                                            result['resource_url'], result['uri'], result['format'], result['genre'],
@@ -237,7 +234,6 @@ def confirm_add():
 def writeconfig():
     global plex, plex_error, discogs_error, PLEX_TOKEN, BASE_URL_PLEX, DISCOGS_TOKEN
     result = request.form.to_dict()
-    # print(result)
     tools.write_config(location_config, result)
 
     PLEX_TOKEN = result['plex_token']
@@ -263,6 +259,56 @@ def writeconfig():
                                datas=tools.read_config_all(location_config),
                                plex_error=plex_error,
                                discogs_error=discogs_error)
+
+
+@app.route('/indexage')
+def indexage():
+    if not tools.verify_config(location_config) or plex_error or discogs_error:
+        return render_template('demarrage.html', datas=tools.read_config_all(location_config))
+    if 'token' in session:
+        user = MyPlexAccount(token=session['token']).username
+        is_admin = tools.is_admin(plex, user)
+
+        list_folder = []
+        idea = []
+        library = tools.read_config(location_config, 'library')
+
+        print(library)
+        for lib in library:
+            print(lib)
+            list_folder = []
+            rootdir = lib['path'][1:]
+            for folder in os.listdir(rootdir):
+                d = os.path.join(rootdir, folder)
+                if os.path.isdir(d):
+                    if '[' in folder and ']' in folder:
+                        release_id = folder.split('[')
+                        release_id = release_id[1].split(']')
+                        if functions_db.read_db_verify_if_release_exist(functions_db.get_db_connection(location_db), release_id[0]):
+                            pass
+                    else:
+                        release = {'folder': d, 'short_folder': d[len(rootdir)+1:], 'suggest': tools.indexage_search_result(folder, location_db, DISCOGS_TOKEN)}
+                        print(d)
+                        print(len(rootdir))
+                        print(release)
+                        list_folder.append(release)
+        print(list_folder)
+
+        return render_template('indexage.html', datas=list_folder, username=user, isadmin=is_admin, contact=CONTACT_URL)
+    else:
+        return redirect(url_for('signin'))
+
+
+@app.route('/valid_indexage', methods=['POST'])
+def valid_indexage():
+    if not tools.verify_config(location_config) or plex_error or discogs_error:
+        return render_template('demarrage.html', datas=tools.read_config_all(location_config))
+    if 'token' in session:
+        result = request.args
+        print(request.form.to_dict())
+        return redirect(url_for('index'))
+    else:
+        return redirect(url_for('signin'))
 
 
 if __name__ == "__main__":

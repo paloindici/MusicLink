@@ -35,7 +35,7 @@ class Thread_main_downloader(threading.Thread):
                                 break
                         release = api_discogs.release(item['releaseId'], self.discogs_token)
                         release['artists_sort'] = release['artists_sort'].replace("/", "&")
-                        folder = f"{release['artists_sort']} - {release['title']}"
+                        folder = f"{release['artists_sort']} - {release['title']} - [{release['id']}]"
 
                         for i, track in enumerate(release['tracklist']):
                             succes_dl = False

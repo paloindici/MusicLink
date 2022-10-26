@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Indexage {% endblock %}</h1>
+
+<form role="search" action="{{url_for('.valid_indexage')}}" method="post">
+    <div class="d-flex justify-content-center mb-3" style="height: 3vh">
+        <h5 class="text-white">{{datas|length}} fichier(s) inconnu(s)</h5>
+    </div>
+    {% for album in datas %}
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" value="{{album['folder']}}" aria-label="album"
+               id="n_{{album['short_folder']}}"
+               name="n_{{album['short_folder']}}" readonly>
+        <span class="input-group-text">=></span>
+
+        <select class="form-select form-select-sm me-3 w-25" aria-label=".form-select-sm example"
+                name="c_{{album['short_folder']}}">
+            <option value='0'>Aucune sélection</option>
+            {% for idea in album['suggest'] %}
+            <option value={{idea['id']}}>{{idea['format'][0]}} | {{idea['title']}} | {{idea['year']}} |
+                {{idea['genre'][0]}}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-outline-primary">
+        Valider l'indexage
+    </button>
+</form>
+
+{% endblock %}
